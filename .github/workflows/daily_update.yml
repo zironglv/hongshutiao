@@ -39,13 +39,12 @@ jobs:
           git push
       
       - name: 发送钉钉通知
-        if: ${{ secrets.DINGTALK_WEBHOOK != '' }}
         run: |
           curl -X POST "${{ secrets.DINGTALK_WEBHOOK }}" \
             -H "Content-Type: application/json" \
             -d '{
               "msgtype": "text", 
               "text": {
-                "content": "🍠 红薯条日报已更新！\n时间: '"$(date '+%Y-%m-%d %H:%M')"'\n查看: https://zironglv.github.io/hongshutiao/"
+                "content": "靑枫_QwQ\n🍠 红薯条日报已更新！\n时间: '"$(date '+%Y-%m-%d %H:%M')"'\n查看: https://zironglv.github.io/hongshutiao/"
               }
             }'
