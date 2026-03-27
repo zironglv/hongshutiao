@@ -1,0 +1,68 @@
+{
+  "930740": {
+    "name": "300红利低波",
+    "history": [
+      {
+        "date": "2026-03-27",
+        "dividend_yield": 4.63,
+        "pe": 8.99,
+        "percentile": 100.0
+      }
+    ]
+  },
+  "930955": {
+    "name": "红利低波100",
+    "history": [
+      {
+        "date": "2026-03-27",
+        "dividend_yield": 4.88,
+        "pe": 10.04,
+        "percentile": 45.0
+      }
+    ]
+  },
+  "931446": {
+    "name": "东证红利低波",
+    "history": [
+      {
+        "date": "2026-03-27",
+        "dividend_yield": 4.41,
+        "pe": 9.06,
+        "percentile": 80.0
+      }
+    ]
+  },
+  "H30269": {
+    "name": "红利低波",
+    "history": [
+      {
+        "date": "2026-03-27",
+        "dividend_yield": 5.01,
+        "pe": 8.07,
+        "percentile": 95.0
+      }
+    ]
+  },
+  "H50040": {
+    "name": "上红低波",
+    "history": [
+      {
+        "date": "2026-03-27",
+        "dividend_yield": 4.74,
+        "pe": 8.2,
+        "percentile": 95.0
+      }
+    ]
+  },
+  "930992": {
+    "name": "沪港深红利低波",
+    "history": [
+      {
+        "date": "2026-03-27",
+        "dividend_yield": 5.46,
+        "pe": 8.6,
+        "percentile": 45.0
+      }
+    ]
+  }
+}

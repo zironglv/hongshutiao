@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍠 红薯条 - 红利指数股息率监控</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍠</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            color: #d35400;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .update-time {
+            color: #999;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .indices-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .indices-table th,
+        .indices-table td {
+            padding: 15px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .indices-table th {
+            color: #666;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .indices-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .index-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .yield-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #d35400;
+        }
+        
+        .yield-high {
+            color: #27ae60;
+        }
+        
+        .yield-medium {
+            color: #f39c12;
+        }
+        
+        .yield-low {
+            color: #e74c3c;
+        }
+        
+        .percentile {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .percentile-low {
+            background: #e8f8f5;
+            color: #27ae60;
+        }
+        
+        .percentile-medium {
+            background: #fef9e7;
+            color: #f39c12;
+        }
+        
+        .percentile-high {
+            background: #fdedec;
+            color: #e74c3c;
+        }
+        
+        .insight-box {
+            background: #fff9e6;
+            border-left: 4px solid #f39c12;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin-top: 20px;
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            color: #d35400;
+            margin-bottom: 10px;
+        }
+        
+        .insight-text {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .disclaimer {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .disclaimer-text {
+            color: #999;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        footer a {
+            color: #d35400;
+            text-decoration: none;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .indices-table th:nth-child(3),
+            .indices-table td:nth-child(3) {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🍠</div>
+            <h1>红薯条 · 红利指数监控</h1>
+            <p class="subtitle">每日股息率数据，稳健投资参考</p>
+            <p class="update-time" id="update-time">数据加载中...</p>
+        </header>
+        
+        <div class="main-card">
+            <div class="card-title">
+                <span>📊</span>
+                <span>今日股息率数据</span>
+            </div>
+            
+            <table class="indices-table">
+                <thead>
+                    <tr>
+                        <th>指数名称</th>
+                        <th>股息率</th>
+                        <th>历史分位</th>
+                        <th>市盈率</th>
+                    </tr>
+                </thead>
+                <tbody id="indices-body">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #999;">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="insight-box" id="insight-box" style="display: none;">
+                <div class="insight-title">💡 今日观点</div>
+                <div class="insight-text" id="insight-text"></div>
+            </div>
+            
+            <div class="disclaimer">
+                <p class="disclaimer-text">
+                    ⚠️ 免责声明：本页面数据仅供参考，不构成投资建议。投资有风险，入市需谨慎。
+                    数据来源：中证指数官网，每日更新。
+                </p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>
+                🍠 <a href="https://github.com/zironglv/hongshutiao" target="_blank">红薯条</a> 
+                · 数据驱动 · 稳健投资
+            </p>
+            <p style="margin-top: 10px; font-size: 12px;">
+                GitHub Actions 自动更新 · 每个工作日 7:00
+            </p>
+        </footer>
+    </div>
+    
+    <script>
+        // 加载数据
+        async function loadData() {
+            try {
+                const response = await fetch('data/latest.json');
+                const data = await response.json();
+                
+                renderData(data);
+            } catch (error) {
+                console.error('数据加载失败:', error);
+                document.getElementById('update-time').textContent = '数据加载失败，请稍后刷新';
+            }
+        }
+        
+        function renderData(data) {
+            // 更新时间
+            document.getElementById('update-time').textContent = 
+                `更新时间: ${data.date} ${data.fetch_time || ''}`;
+            
+            // 渲染表格
+            const tbody = document.getElementById('indices-body');
+            tbody.innerHTML = '';
+            
+            const indices = data.indices || [];
+            
+            indices.forEach(item => {
+                const yieldVal = item.dividend_yield_2;
+                const percentile = item.dividend_yield_percentile;
+                
+                // 股息率颜色
+                let yieldClass = 'yield-medium';
+                if (yieldVal >= 5) yieldClass = 'yield-high';
+                else if (yieldVal < 4) yieldClass = 'yield-low';
+                
+                // 分位数样式
+                let percClass = 'percentile-medium';
+                if (percentile <= 40) percClass = 'percentile-low';
+                else if (percentile >= 60) percClass = 'percentile-high';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="index-name">${item.name}</td>
+                    <td class="yield-value ${yieldClass}">${yieldVal ? yieldVal.toFixed(2) + '%' : 'N/A'}</td>
+                    <td>
+                        ${percentile ? `<span class="percentile ${percClass}">${percentile.toFixed(0)}%</span>` : 'N/A'}
+                    </td>
+                    <td>${item.pe_2 ? item.pe_2.toFixed(2) : 'N/A'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // 显示观点
+            if (data.market_view) {
+                document.getElementById('insight-text').textContent = data.market_view;
+                document.getElementById('insight-box').style.display = 'block';
+            }
+        }
+        
+        // 页面加载时获取数据
+        loadData();
+    </script>
+</body>
+</html>
