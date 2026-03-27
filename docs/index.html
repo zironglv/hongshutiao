@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍠 红薯条 - 红利指数股息率监控</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍠</text></svg>">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,7 +22,7 @@
         }
         
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
         
@@ -159,6 +161,117 @@
             line-height: 1.6;
         }
         
+        /* 趋势图区域 */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .chart-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .chart-tab {
+            padding: 8px 16px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .chart-tab.active {
+            background: #d35400;
+            color: white;
+        }
+        
+        .chart-tab:hover {
+            background: #e67e22;
+            color: white;
+        }
+        
+        /* 投资计算器 */
+        .calculator-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .calc-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .calc-input {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .calc-input label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .calc-input input, .calc-input select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .calc-btn {
+            background: #d35400;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .calc-btn:hover {
+            background: #e67e22;
+        }
+        
+        .calc-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            color: #666;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            color: #d35400;
+        }
+        
         .disclaimer {
             background: #f8f9fa;
             padding: 15px 20px;
@@ -186,13 +299,25 @@
         
         /* 响应式 */
         @media (max-width: 600px) {
-            .indices-table th:nth-child(3),
-            .indices-table td:nth-child(3) {
+            .indices-table th:nth-child(4),
+            .indices-table td:nth-child(4) {
                 display: none;
             }
             
             h1 {
                 font-size: 22px;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .calc-row {
+                flex-direction: column;
+            }
+            
+            .calc-input {
+                width: 100%;
             }
         }
     </style>
@@ -232,11 +357,73 @@
                 <div class="insight-title">💡 今日观点</div>
                 <div class="insight-text" id="insight-text"></div>
             </div>
+        </div>
+        
+        <!-- 趋势图区域 -->
+        <div class="main-card">
+            <div class="card-title">
+                <span>📈</span>
+                <span>历史趋势</span>
+            </div>
+            
+            <div class="chart-tabs">
+                <button class="chart-tab active" onclick="switchChart('yield')">股息率走势</button>
+                <button class="chart-tab" onclick="switchChart('percentile')">分位数走势</button>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- 投资计算器 -->
+        <div class="main-card">
+            <div class="card-title">
+                <span>🧮</span>
+                <span>定投收益计算器</span>
+            </div>
+            
+            <div class="calculator-section">
+                <div class="calc-row">
+                    <div class="calc-input">
+                        <label>每月定投金额（元）</label>
+                        <input type="number" id="monthly-amount" value="1000" min="100">
+                    </div>
+                    <div class="calc-input">
+                        <label>定投年限（年）</label>
+                        <input type="number" id="invest-years" value="3" min="1" max="30">
+                    </div>
+                    <div class="calc-input">
+                        <label>预期年化收益率（%）</label>
+                        <input type="number" id="annual-return" value="8" min="0" max="30" step="0.5">
+                    </div>
+                    <button class="calc-btn" onclick="calculateReturn()">计算收益</button>
+                </div>
+                
+                <div class="calc-result" id="calc-result" style="display: none;">
+                    <div class="result-item">
+                        <span class="result-label">累计投入本金</span>
+                        <span class="result-value" id="total-principal">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">预计期末市值</span>
+                        <span class="result-value" id="final-value">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">累计收益</span>
+                        <span class="result-value" id="total-profit">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">年化股息收入（预估）</span>
+                        <span class="result-value" id="annual-dividend">-</span>
+                    </div>
+                </div>
+            </div>
             
             <div class="disclaimer">
                 <p class="disclaimer-text">
                     ⚠️ 免责声明：本页面数据仅供参考，不构成投资建议。投资有风险，入市需谨慎。
-                    数据来源：中证指数官网，每日更新。
+                    数据来源：中证指数官网，每日更新。收益计算仅为模拟，实际收益可能有所不同。
                 </p>
             </div>
         </div>
@@ -253,6 +440,10 @@
     </div>
     
     <script>
+        let trendChart = null;
+        let currentChartType = 'yield';
+        let historyData = [];
+        
         // 加载数据
         async function loadData() {
             try {
@@ -260,9 +451,26 @@
                 const data = await response.json();
                 
                 renderData(data);
+                
+                // 加载历史数据
+                await loadHistoryData();
             } catch (error) {
                 console.error('数据加载失败:', error);
                 document.getElementById('update-time').textContent = '数据加载失败，请稍后刷新';
+            }
+        }
+        
+        async function loadHistoryData() {
+            try {
+                const response = await fetch('data/latest.json');
+                const data = await response.json();
+                historyData = data.history || [];
+                
+                if (historyData.length > 0) {
+                    renderChart('yield');
+                }
+            } catch (error) {
+                console.log('历史数据加载失败，跳过图表');
             }
         }
         
@@ -308,6 +516,146 @@
                 document.getElementById('insight-text').textContent = data.market_view;
                 document.getElementById('insight-box').style.display = 'block';
             }
+        }
+        
+        function switchChart(type) {
+            currentChartType = type;
+            
+            // 更新标签样式
+            document.querySelectorAll('.chart-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderChart(type);
+        }
+        
+        function renderChart(type) {
+            if (!historyData || historyData.length === 0) {
+                // 如果没有历史数据，显示提示
+                const ctx = document.getElementById('trendChart').getContext('2d');
+                if (trendChart) trendChart.destroy();
+                trendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['暂无历史数据'],
+                        datasets: [{
+                            label: '等待数据积累',
+                            data: [0],
+                            borderColor: '#d35400',
+                            tension: 0.3
+                        }]
+                    }
+                });
+                return;
+            }
+            
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            if (trendChart) trendChart.destroy();
+            
+            // 准备数据
+            const labels = historyData.map(d => d.date).reverse();
+            const indexNames = ['300红利低波', '红利低波100', '东证红利低波', '红利低波', '上红低波', '沪港深红利低波'];
+            const colors = ['#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#f39c12', '#1abc9c'];
+            
+            const datasets = indexNames.map((name, i) => {
+                const data = historyData.map(d => {
+                    const idx = d.indices?.find(item => item.name === name);
+                    if (type === 'yield') {
+                        return idx?.dividend_yield_2 || null;
+                    } else {
+                        return idx?.dividend_yield_percentile || null;
+                    }
+                }).reverse();
+                
+                return {
+                    label: name,
+                    data: data,
+                    borderColor: colors[i],
+                    backgroundColor: colors[i] + '20',
+                    tension: 0.3,
+                    pointRadius: 3,
+                    pointHoverRadius: 5
+                };
+            });
+            
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(2) + (type === 'yield' ? '%' : '%分位');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + (type === 'yield' ? '%' : '%');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function calculateReturn() {
+            const monthlyAmount = parseFloat(document.getElementById('monthly-amount').value) || 1000;
+            const years = parseInt(document.getElementById('invest-years').value) || 3;
+            const annualReturn = parseFloat(document.getElementById('annual-return').value) || 8;
+            
+            const monthlyRate = annualReturn / 100 / 12;
+            const months = years * 12;
+            const totalPrincipal = monthlyAmount * months;
+            
+            // 定投复利公式
+            let finalValue = 0;
+            if (monthlyRate > 0) {
+                finalValue = monthlyAmount * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+            } else {
+                finalValue = totalPrincipal;
+            }
+            
+            const totalProfit = finalValue - totalPrincipal;
+            
+            // 预估年化股息收入（按4.5%股息率）
+            const avgYield = 0.045;
+            const annualDividend = finalValue * avgYield;
+            
+            // 显示结果
+            document.getElementById('total-principal').textContent = '¥' + totalPrincipal.toLocaleString();
+            document.getElementById('final-value').textContent = '¥' + Math.round(finalValue).toLocaleString();
+            document.getElementById('total-profit').textContent = '¥' + Math.round(totalProfit).toLocaleString() + 
+                ' (' + (totalProfit / totalPrincipal * 100).toFixed(1) + '%)';
+            document.getElementById('annual-dividend').textContent = '¥' + Math.round(annualDividend).toLocaleString() + '/年';
+            
+            document.getElementById('calc-result').style.display = 'block';
         }
         
         // 页面加载时获取数据

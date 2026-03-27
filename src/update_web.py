@@ -57,7 +57,45 @@ def update_website_data():
     with open(history_file, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     
+    # 聚合历史数据（近30天）
+    history_list = aggregate_history_data(data_files, 30)
+    data['history'] = history_list
+    
+    # 再次写入，包含历史数据
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    
+    print(f"✅ 历史数据已聚合: {len(history_list)} 天")
+    
     return True
+
+
+def aggregate_history_data(data_files, days=30):
+    """聚合历史数据"""
+    history = []
+    
+    # 获取最近N天的文件
+    recent_files = sorted(data_files, reverse=True)[:days]
+    
+    for filepath in recent_files:
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                file_data = json.load(f)
+            
+            # 提取日期和指数数据
+            date_str = file_data.get('date', '')
+            indices = file_data.get('indices', [])
+            
+            if date_str and indices:
+                history.append({
+                    'date': date_str,
+                    'indices': indices
+                })
+        except Exception as e:
+            print(f"⚠️ 读取历史文件失败 {filepath}: {e}")
+            continue
+    
+    return history
 
 
 def main():

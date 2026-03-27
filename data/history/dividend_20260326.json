@@ -1,0 +1,60 @@
+{
+  "date": "2026-03-26",
+  "fetch_time": "07:00:00",
+  "indices": [
+    {
+      "name": "300红利低波",
+      "code": "931426",
+      "dividend_yield_1": 4.55,
+      "dividend_yield_2": 4.50,
+      "dividend_yield_percentile": 93.0,
+      "pe_1": 5.70,
+      "pe_2": 5.65
+    },
+    {
+      "name": "红利低波100",
+      "code": "930739",
+      "dividend_yield_1": 4.82,
+      "dividend_yield_2": 4.78,
+      "dividend_yield_percentile": 24.0,
+      "pe_1": 6.15,
+      "pe_2": 6.10
+    },
+    {
+      "name": "东证红利低波",
+      "code": "931358",
+      "dividend_yield_1": 4.36,
+      "dividend_yield_2": 4.32,
+      "dividend_yield_percentile": 49.0,
+      "pe_1": 6.00,
+      "pe_2": 5.95
+    },
+    {
+      "name": "红利低波",
+      "code": "H30269",
+      "dividend_yield_1": 4.95,
+      "dividend_yield_2": 4.90,
+      "dividend_yield_percentile": 84.0,
+      "pe_1": 5.55,
+      "pe_2": 5.50
+    },
+    {
+      "name": "上红低波",
+      "code": "H50032",
+      "dividend_yield_1": 4.68,
+      "dividend_yield_2": 4.65,
+      "dividend_yield_percentile": 74.0,
+      "pe_1": 5.82,
+      "pe_2": 5.78
+    },
+    {
+      "name": "沪港深红利低波",
+      "code": "931268",
+      "dividend_yield_1": 5.48,
+      "dividend_yield_2": 5.45,
+      "dividend_yield_percentile": 50.0,
+      "pe_1": 5.28,
+      "pe_2": 5.25
+    }
+  ]
+}
