@@ -59,15 +59,19 @@ class DividendCollector:
         """解析 Excel 文件，提取股息率数据
         
         Args:
-            content: Excel 文件内容
+            content: Excel 文件内容 (bytes 或文件路径)
             code: 指数代码
             
         Returns:
             包含股息率数据的 DataFrame
         """
         try:
+            import io
             # 读取 Excel 文件
-            df = pd.read_excel(content, engine='xlrd')
+            if isinstance(content, bytes):
+                df = pd.read_excel(io.BytesIO(content), engine='xlrd')
+            else:
+                df = pd.read_excel(content, engine='xlrd')
             logger.info(f"解析 Excel 成功，共 {len(df)} 行数据")
             logger.info(f"列名: {df.columns.tolist()}")
             

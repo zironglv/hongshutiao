@@ -92,6 +92,63 @@ def run_daily_task():
     content_gen.save_content(post)
     logger.info("✅ 内容生成完成")
     
+    # 5.5 生成日报（新增功能）
+    logger.info("\n📋 Step 5.5: 生成日报")
+    try:
+        # 获取历史数据用于趋势分析
+        history_data = storage.load_history_data(days=30) if hasattr(storage, 'load_history_data') else []
+        
+        # 分析市场趋势
+        market_trend = analyzer.analyze_market_trend(history_data) if history_data else None
+        
+        # 计算平均分位数
+        analyses = analysis_result.get('analysis', [])
+        avg_percentile = 0
+        avg_yield = 0
+        count = 0
+        for a in analyses:
+            if a.get('percentile'):
+                avg_percentile += a['percentile']
+                avg_yield += a.get('yield', 0) if a.get('yield') else 0
+                count += 1
+        if count > 0:
+            avg_percentile /= count
+            avg_yield /= count
+        
+        # 生成投资建议
+        investment_advice = analyzer.generate_investment_advice(avg_percentile, avg_yield)
+        
+        # 获取风险提示和知识点
+        risk_tip = analyzer.get_risk_tip()
+        knowledge_tip = analyzer.get_knowledge_tip()
+        
+        # 生成日报
+        daily_report = content_gen.generate_daily_report(
+            analysis_result=analysis_result,
+            market_trend=market_trend,
+            investment_advice=investment_advice,
+            risk_tip=risk_tip,
+            knowledge_tip=knowledge_tip,
+            history_data=history_data
+        )
+        
+        # 保存日报
+        report_file = os.path.join(OUTPUT_DIR, f"daily_report_{datetime.now().strftime('%Y%m%d')}.md")
+        with open(report_file, 'w', encoding='utf-8') as f:
+            f.write(daily_report)
+        logger.info(f"✅ 日报已保存: {report_file}")
+        
+        # 打印日报预览
+        logger.info("\n" + "="*60)
+        logger.info("日报预览:")
+        logger.info("="*60)
+        print(daily_report[:500] + "..." if len(daily_report) > 500 else daily_report)
+        logger.info("="*60)
+    except Exception as e:
+        logger.warning(f"⚠️ 日报生成失败: {e}")
+        import traceback
+        traceback.print_exc()
+    
     # 6. 输出推送消息
     logger.info("\n📤 Step 6: 生成推送消息")
     push_msg = content_gen.generate_push_message(post)

@@ -211,6 +211,243 @@ class ContentGenerator:
         
         return "\n".join(lines)
 
+    def generate_daily_report(self, analysis_result: Dict[str, Any], 
+                             market_trend: Dict[str, Any] = None,
+                             investment_advice: Dict[str, Any] = None,
+                             risk_tip: str = None,
+                             knowledge_tip: str = None,
+                             history_data: List[Dict] = None) -> str:
+        """生成日报（按 DAILY_REPORT_TEMPLATE.md 结构）
+        
+        Args:
+            analysis_result: 分析结果
+            market_trend: 市场趋势数据（日环比、周环比等）
+            investment_advice: 投资建议
+            risk_tip: 风险提示
+            knowledge_tip: 知识点
+            history_data: 历史数据（用于计算平均股息率等）
+            
+        Returns:
+            日报文本内容
+        """
+        analyses = analysis_result.get('analysis', [])
+        date_str = datetime.now().strftime('%Y年%m月%d日')
+        weekday_names = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        weekday = weekday_names[datetime.now().weekday()]
+        
+        lines = []
+        
+        # 标题
+        lines.append(f"# 📅 {date_str} {weekday} 红利指数日报")
+        lines.append("")
+        lines.append("> 红薯条每日监控，助力稳健投资")
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+        
+        # ==================== 数据总览 ====================
+        lines.append("## 📊 今日数据总览")
+        lines.append("")
+        lines.append("| 指数名称 | 代码 | TTM股息率 | 历史分位数 | 评级 |")
+        lines.append("|----------|------|-----------|------------|------|")
+        
+        total_yield = 0
+        total_percentile = 0
+        valid_count = 0
+        
+        for a in analyses:
+            name = a.get('name', 'N/A')
+            code = a.get('code', 'N/A')
+            yield_val = a.get('yield')
+            percentile = a.get('percentile')
+            
+            # 格式化数据
+            yield_str = f"{yield_val:.2f}%" if yield_val else "N/A"
+            perc_str = f"{percentile:.0f}%" if percentile else "N/A"
+            
+            # 计算评级（星星）
+            if percentile is not None:
+                if percentile <= 30:
+                    rating = "⭐⭐⭐⭐⭐"
+                elif percentile <= 50:
+                    rating = "⭐⭐⭐⭐"
+                elif percentile <= 70:
+                    rating = "⭐⭐⭐"
+                else:
+                    rating = "⭐⭐"
+            else:
+                rating = "N/A"
+            
+            lines.append(f"| {name} | {code} | {yield_str} | {perc_str} | {rating} |")
+            
+            # 累计统计
+            if yield_val:
+                total_yield += yield_val
+                valid_count += 1
+            if percentile:
+                total_percentile += percentile
+        
+        lines.append("")
+        
+        # 平均值
+        avg_yield = total_yield / valid_count if valid_count > 0 else 0
+        avg_percentile = total_percentile / valid_count if valid_count > 0 else 0
+        lines.append(f"**平均股息率**：{avg_yield:.2f}%")
+        lines.append(f"**平均分位数**：{avg_percentile:.0f}%")
+        lines.append("")
+        
+        # ==================== 市场解读 ====================
+        lines.append("---")
+        lines.append("")
+        lines.append("## 📈 市场解读")
+        lines.append("")
+        
+        # 整体观点
+        lines.append("### 整体观点")
+        market_view = analysis_result.get('market_view', '')
+        lines.append(market_view if market_view else "当前红利指数整体表现稳定，建议持续关注。")
+        lines.append("")
+        
+        # 趋势分析
+        lines.append("### 趋势分析")
+        if market_trend:
+            daily_change = market_trend.get('daily_change', 0)
+            weekly_change = market_trend.get('weekly_change', 0)
+            trend_direction = market_trend.get('trend_direction', 'stable')
+            trend_strength = market_trend.get('trend_strength', 'weak')
+            
+            # 日环比
+            if daily_change > 0:
+                daily_str = f"较上个交易日 **上升 {abs(daily_change):.1f} 个基点** 📈"
+            elif daily_change < 0:
+                daily_str = f"较上个交易日 **下降 {abs(daily_change):.1f} 个基点** 📉"
+            else:
+                daily_str = "与上个交易日 **持平** ➡️"
+            
+            # 周环比
+            if weekly_change > 0:
+                weekly_str = f"较上周同期 **上升 {abs(weekly_change):.1f} 个基点** 📈"
+            elif weekly_change < 0:
+                weekly_str = f"较上周同期 **下降 {abs(weekly_change):.1f} 个基点** 📉"
+            else:
+                weekly_str = "与上周同期 **持平** ➡️"
+            
+            lines.append(f"- **日环比变化**：{daily_str}")
+            lines.append(f"- **周环比变化**：{weekly_str}")
+            lines.append(f"- **分位数位置**：当前处于历史 **{avg_percentile:.0f}% 分位**，意味着历史上有 {avg_percentile:.0f}% 的时间股息率比现在低")
+        else:
+            lines.append("- **日环比变化**：暂无历史数据")
+            lines.append("- **周环比变化**：暂无历史数据")
+            lines.append(f"- **分位数位置**：当前处于历史 **{avg_percentile:.0f}% 分位**")
+        lines.append("")
+        
+        # 主要解读
+        lines.append("### 主要解读")
+        if avg_percentile <= 30:
+            lines.append("- 🔥 当前股息率处于历史低位区间，投资性价比较高")
+            lines.append("- 💎 分位数较低意味着股息率较高，是较好的配置时机")
+        elif avg_percentile <= 50:
+            lines.append("- 📊 当前股息率处于合理区间，适合正常定投")
+            lines.append("- 🔄 建议保持定投节奏，不必过于关注短期波动")
+        elif avg_percentile <= 70:
+            lines.append("- ⚠️ 当前股息率偏高，需注意控制仓位")
+            lines.append("- 📉 建议减少定投金额或部分止盈")
+        else:
+            lines.append("- ⚠️ 当前股息率处于历史高位，谨慎投资")
+            lines.append("- 🛑 建议暂停定投或考虑止盈")
+        lines.append("")
+        
+        # ==================== 定投建议 ====================
+        lines.append("---")
+        lines.append("")
+        lines.append("## 💰 定投建议")
+        lines.append("")
+        
+        lines.append("### 🟢 新手投资者")
+        lines.append("")
+        lines.append("| 当前分位数 | 建议 | 理由 |")
+        lines.append("|------------|------|------|")
+        lines.append("| < 30% | **加倍定投** | 历史低位，性价比极高 |")
+        lines.append("| 30-50% | **正常定投** | 处于合理区间，坚持定投 |")
+        lines.append("| 50-70% | **减半定投** | 偏高位，控制节奏 |")
+        lines.append("| > 70% | **暂停观望** | 历史高位，等待回调 |")
+        lines.append("")
+        
+        # 今日建议
+        if investment_advice and 'beginner' in investment_advice:
+            beginner_advice = investment_advice['beginner']
+            lines.append(f"**今日建议**：**{beginner_advice['action']}** - {beginner_advice['reason']}")
+        else:
+            if avg_percentile <= 30:
+                lines.append("**今日建议**：**加倍定投** - 历史低位，性价比极高")
+            elif avg_percentile <= 50:
+                lines.append("**今日建议**：**正常定投** - 处于合理区间，坚持定投")
+            elif avg_percentile <= 70:
+                lines.append("**今日建议**：**减半定投** - 偏高位，控制节奏")
+            else:
+                lines.append("**今日建议**：**暂停观望** - 历史高位，等待回调")
+        lines.append("")
+        
+        lines.append("### 🟡 定投中的朋友")
+        lines.append("")
+        lines.append("| 场景 | 建议 |")
+        lines.append("|------|------|")
+        lines.append("| 已定投 < 6个月 | 继续坚持，不用在意短期波动 |")
+        lines.append("| 已定投 6-12个月 | 关注分位数变化，适时调整 |")
+        lines.append("| 已定投 > 1年 | 考虑部分止盈，锁定收益 |")
+        lines.append("")
+        
+        if investment_advice and 'ongoing' in investment_advice:
+            ongoing_advice = investment_advice['ongoing']
+            lines.append(f"**当前建议**：{ongoing_advice['action']} - {ongoing_advice['reason']}")
+        lines.append("")
+        
+        # 止盈策略
+        lines.append("### 🔴 止盈策略")
+        lines.append("")
+        if investment_advice and 'stop_profit' in investment_advice:
+            lines.append(investment_advice['stop_profit'])
+        else:
+            lines.append("当分位数超过80%时，考虑分批止盈30%-50%。")
+        lines.append("")
+        
+        # ==================== 风险提示 ====================
+        lines.append("---")
+        lines.append("")
+        lines.append("## ⚠️ 风险提示")
+        lines.append("")
+        if risk_tip:
+            lines.append(risk_tip)
+        else:
+            lines.append("投资有风险，入市需谨慎。本日报仅供参考，不构成投资建议。")
+        lines.append("")
+        
+        # ==================== 知识点 ====================
+        lines.append("---")
+        lines.append("")
+        lines.append("## 📚 今日知识点")
+        lines.append("")
+        if knowledge_tip:
+            lines.append(knowledge_tip)
+        else:
+            lines.append("股息率 = 年度分红 / 股价 × 100%。股息率越高，投资回报越好。")
+        lines.append("")
+        
+        # ==================== 免责声明 ====================
+        lines.append("---")
+        lines.append("")
+        lines.append("## 📝 免责声明")
+        lines.append("")
+        lines.append("本日报内容仅供参考，不构成任何投资建议。")
+        lines.append("投资有风险，入市需谨慎。请根据自身情况做出投资决策。")
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+        lines.append("*📊 数据来源：指数公司官方披露 *")
+        lines.append("*🍠 红薯条 - 让红利投资更简单 *")
+        
+        return "\n".join(lines)
+
 
 if __name__ == "__main__":
     # 测试内容生成
