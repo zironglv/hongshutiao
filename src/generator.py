@@ -28,7 +28,12 @@ class ContentGenerator:
 
     def generate_xiaohongshu_post(self, analysis_result: Dict[str, Any], 
                                    news: List[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """生成小红书帖子内容
+        """生成小红书帖子内容（优化版）
+        
+        优化要点：
+        1. 标题轮换使用多种模板，包含吸引眼球的元素
+        2. 内容结构：吸睛开头 → 核心数据 → 深度观点 → 操作建议 → 知识科普 → 互动引导
+        3. 添加互动元素：评论区问题、点赞收藏引导
         
         Args:
             analysis_result: 分析结果
@@ -43,20 +48,33 @@ class ContentGenerator:
             }
         """
         date_str = datetime.now().strftime('%m月%d日')
+        weekday_names = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        weekday = weekday_names[datetime.now().weekday()]
         analyses = analysis_result.get('analysis', [])
         market_view = analysis_result.get('market_view', '')
         
-        # 生成标题
-        title = self._generate_title(analysis_result)
+        # 计算平均分位数
+        total_percentile = 0
+        valid_count = 0
+        for a in analyses:
+            if a.get('percentile') is not None:
+                total_percentile += a['percentile']
+                valid_count += 1
+        avg_percentile = total_percentile / valid_count if valid_count > 0 else 50
         
-        # 生成正文
-        content = self._generate_content(analysis_result, news)
+        # 计算最高股息率
+        best_yield = analysis_result.get('best_yield', {})
+        max_yield = best_yield.get('yield', 0) if best_yield else 0
+        
+        # 生成标题（轮换使用多种模板）
+        title = self._generate_title_v2(date_str, avg_percentile, max_yield, best_yield)
+        
+        # 生成正文（优化结构）
+        market_view = analysis_result.get('market_view', '')
+        content = self._generate_content_v2(analysis_result, market_view, avg_percentile)
         
         # 生成标签
-        tags = [
-            '#红利指数', '#红利低波', '#股息率', '#投资理财',
-            '#稳健投资', '#被动收入', '#ETF投资', '#基金定投'
-        ]
+        tags = self._generate_tags()
         
         return {
             'title': title,
@@ -80,6 +98,103 @@ class ContentGenerator:
                 return f"🍠 {date_str}红利日报｜{best_yield['name']}领先"
         
         return f"🍠 {date_str}红利指数日报｜股息率监控"
+
+    def _generate_title_v2(self, date_str: str, avg_percentile: float, max_yield: float, best_yield: Dict) -> str:
+        """生成小红书标题（优化版，轮换多种模板）"""
+        import random
+        
+        templates = [
+            # 模板1：突出股息率数字
+            lambda: f"🍠 {date_str}红利日报｜股息率突破{max_yield:.1f}%！",
+            # 模板2：突出分位数
+            lambda: f"🍠 定投必看｜红利指数分位数{avg_percentile:.0f}%，该加仓还是止盈？",
+            # 模板3：投资日记风格
+            lambda: f"🍠 红利投资日记｜{date_str}股息率出炉，新手定投指南",
+            # 模板4：紧迫感风格
+            lambda: f"🍠 紧急更新｜红利股息率{max_yield:.1f}%！这个信号要注意",
+            # 模板5：数据盘点风格
+            lambda: f"🍠 {date_str}红利盘点｜{len('indices')}大指数全复盘，建议收藏"
+        ]
+        
+        # 基于日期选择模板（保证同一天标题一致）
+        import hashlib
+        idx = int(hashlib.md5(date_str.encode()).hexdigest(), 16) % len(templates)
+        return templates[idx]()
+    
+    def _generate_content_v2(self, analysis_result: Dict[str, Any],
+                             market_view: str, avg_percentile: float,
+                             investment_advice: Dict = None, knowledge_tip: str = None) -> str:
+        """生成小红书正文（优化版）"""
+        analyses = analysis_result.get('analysis', [])
+        date_str = datetime.now().strftime('%Y年%m月%d日')
+        weekday_names = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        weekday = weekday_names[datetime.now().weekday()]
+        
+        lines = []
+        
+        # 1. 吸睛开头
+        if avg_percentile < 40:
+            lines.append(f"🔥 {date_str} {weekday}｜红利指数进入低估区！")
+            lines.append("姐妹们，今天的股息率数据很漂亮，可能是加仓的好时机！")
+        elif avg_percentile > 70:
+            lines.append(f"⚠️ {date_str} {weekday}｜红利指数估值偏高，注意风险！")
+            lines.append("今天的股息率数据出来了，需要谨慎操作～")
+        else:
+            lines.append(f"📊 {date_str} {weekday}｜红利指数日报来了！")
+            lines.append("每天早上一份，帮你把握红利投资节奏～")
+        lines.append("")
+        
+        # 2. 核心数据
+        lines.append("📊 **今日股息率数据**：")
+        lines.append("─" * 16)
+        for a in analyses:
+            emoji = "🔥" if a.get('yield', 0) >= 5 else "📈" if a.get('percentile', 50) < 50 else "⚠️"
+            lines.append(f"{emoji} {a['name']}: {a.get('yield', 0):.2f}% (分位: {a.get('percentile', 50):.0f}%)")
+        lines.append("─" * 16)
+        lines.append("")
+        
+        # 3. 深度观点
+        lines.append("💡 **今日观点**：")
+        lines.append(market_view if market_view else "红利指数整体股息率处于合理区间，坚持定投即可。")
+        lines.append("")
+        
+        # 4. 操作建议
+        lines.append("💰 **操作建议**：")
+        if investment_advice:
+            beginner = investment_advice.get('beginner', {})
+            lines.append(f"• 新手：{beginner.get('action', '正常定投')} - {beginner.get('reason', '坚持定投')}")
+        else:
+            if avg_percentile < 40:
+                lines.append("• 新手：加倍定投，把握低估值机会")
+            elif avg_percentile > 70:
+                lines.append("• 新手：减半定投或暂停观望")
+            else:
+                lines.append("• 新手：正常定投，不用择时")
+        lines.append("")
+        
+        # 5. 知识科普
+        if knowledge_tip:
+            lines.append("📚 **今日知识点**：")
+            lines.append(knowledge_tip[:100] + "..." if len(knowledge_tip) > 100 else knowledge_tip)
+            lines.append("")
+        
+        # 6. 互动引导
+        lines.append("💬 **互动话题**：")
+        lines.append("你定投红利多久了？收益如何？评论区聊聊～")
+        lines.append("")
+        lines.append("📌 觉得有用请点赞收藏，每天早上准时更新！")
+        lines.append("")
+        lines.append("⚠️ 免责声明：以上内容仅供参考，不构成投资建议")
+        
+        return "\n".join(lines)
+    
+    def _generate_tags(self) -> List[str]:
+        """生成小红书标签"""
+        return [
+            "#红利指数", "#红利低波", "#股息率", 
+            "#投资理财", "#稳健投资", "#定投",
+            "#ETF投资", "#基金定投", "#理财小白"
+        ]
 
     def _generate_content(self, analysis_result: Dict[str, Any], 
                           news: List[Dict[str, Any]] = None) -> str:

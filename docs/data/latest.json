@@ -1,12 +1,12 @@
 {
   "date": "2026-03-27",
-  "fetch_time": "20:18:24",
+  "fetch_time": "21:27:05",
   "data_count": 6,
   "indices": [
     {
       "code": "930740",
       "name": "300红利低波",
-      "fetch_time": "2026-03-27 20:18:20",
+      "fetch_time": "2026-03-27 21:27:05",
       "latest_date": "20260302",
       "dividend_yield_1": 4.52,
       "dividend_yield_2": 4.54,
@@ -61,7 +61,7 @@
     {
       "code": "930955",
       "name": "红利低波100",
-      "fetch_time": "2026-03-27 20:18:20",
+      "fetch_time": "2026-03-27 21:27:05",
       "latest_date": "20260302",
       "dividend_yield_1": 4.74,
       "dividend_yield_2": 4.84,
@@ -116,7 +116,7 @@
     {
       "code": "931446",
       "name": "东证红利低波",
-      "fetch_time": "2026-03-27 20:18:21",
+      "fetch_time": "2026-03-27 21:27:05",
       "latest_date": "20260302",
       "dividend_yield_1": 4.52,
       "dividend_yield_2": 4.38,
@@ -171,7 +171,7 @@
     {
       "code": "H30269",
       "name": "红利低波",
-      "fetch_time": "2026-03-27 20:18:21",
+      "fetch_time": "2026-03-27 21:27:05",
       "latest_date": "20260302",
       "dividend_yield_1": 4.61,
       "dividend_yield_2": 4.96,
@@ -226,7 +226,7 @@
     {
       "code": "H50040",
       "name": "上红低波",
-      "fetch_time": "2026-03-27 20:18:21",
+      "fetch_time": "2026-03-27 21:27:05",
       "latest_date": "20260302",
       "dividend_yield_1": 4.48,
       "dividend_yield_2": 4.69,
@@ -281,7 +281,7 @@
     {
       "code": "930992",
       "name": "沪港深红利低波",
-      "fetch_time": "2026-03-27 20:18:24",
+      "fetch_time": "2026-03-27 21:27:05",
       "latest_date": "20260302",
       "dividend_yield_1": 5.38,
       "dividend_yield_2": 5.47,
