@@ -1,245 +1,186 @@
 # 小红书养号任务
 
-## ⚠️ 严格安全要求（必读）
+## ⚠️ 严重警告：禁止使用 browser_use！
 
-### 🚨 绝对禁止事项
+### 🚨 绝对禁止
 
-1. **禁止使用无头浏览器** - 极易被小红书识别并封禁
-2. **禁止使用自动化浏览器** - 如 Puppeteer 无头模式
-3. **禁止自动登录** - 必须由用户扫码完成登录
-4. **禁止跳过登录检查** - 每次执行前必须检查
+```
+❌ browser_use action=start        ← 这是无头浏览器！禁止！
+❌ browser_use action=open         ← 无头浏览器！禁止！
+❌ browser_use action=snapshot     ← 无头浏览器！禁止！
 
-### ✅ 必须执行事项
+为什么禁止？
+- browser_use 使用 Playwright 无头浏览器
+- 默认分辨率 1280x720（容易被识别）
+- 没有用户 Cookie（无法保持登录）
+- 极易被小红书反爬虫系统识别并封号
+```
 
-1. **使用本地 Chrome 浏览器** - 通过 Chrome DevTools MCP
-2. **保留登录 Cookie** - 使用用户数据目录
-3. **检查登录状态** - 每次执行前必须检查
-4. **未登录时通知用户** - 发送二维码让用户扫码
+### ✅ 必须使用 Chrome DevTools MCP
+
+```
+✅ mcporter call chrome-devtools.* ← 连接本地 Chrome！必须！
+✅ 本地 Chrome 有用户 Cookie
+✅ 本地 Chrome 有登录状态
+✅ 截图分辨率 2400x1384（真实浏览器）
+```
 
 ---
 
 ## 任务目标
 
-使用 **Chrome DevTools MCP** 连接本地 Chrome 浏览器，模拟正常用户浏览小红书，实现养号目的。
+使用 **Chrome DevTools MCP** 连接本地 Chrome 浏览器，模拟正常用户浏览小红书。
 
 ---
 
-## 执行频率
+## 执行步骤（必须严格按顺序）
 
-- 每天 1-2 次
-- 时间：上午 10:30 或 晚上 20:00
-- 每次浏览 5-15 分钟
+### ⭐ 第零步：使用 Chrome DevTools MCP 打开小红书
 
----
+**⚠️ 必须首先执行此步骤，使用 mcporter 调用！**
 
-## 执行步骤
+```bash
+# 1. 列出可用工具（可选）
+mcporter list chrome-devtools
 
-### ⭐ 第零步：登录状态检查（必须先执行）
+# 2. 导航到小红书（必须使用这个命令）
+mcporter call chrome-devtools.navigate_page --args '{"type": "url", "url": "https://www.xiaohongshu.com"}'
 
-```
-⚠️ 此步骤必须首先执行，不可跳过！
+# 3. 获取页面快照
+mcporter call chrome-devtools.take_snapshot
 
-检查流程：
-1. 使用 mcporter 调用 Chrome DevTools MCP
-2. 获取当前页面列表
-3. 打开小红书网站 https://www.xiaohongshu.com
-4. 截图检查页面状态
-5. 判断是否已登录：
-   - 已登录：继续执行浏览任务
-   - 未登录：停止任务，截图发送给用户，等待用户扫码
+# 4. 截图保存
+mcporter call chrome-devtools.take_screenshot --args '{"filename": "/Users/qf/.copaw/workspaces/qwq-automation/hongshutiao/logs/screenshot.png"}'
 
-登录状态判断方法：
-- 页面右上角有头像 = 已登录
-- 页面显示登录按钮/二维码 = 未登录
-
-未登录时处理：
-1. 截图当前页面（包含二维码）
-2. 发送钉钉通知给用户：
-   "⚠️ 小红书需要登录！请查看截图，扫码登录后回复「已登录」继续。"
-3. 等待用户确认后再继续
-4. 严禁自动填写账号密码或跳过此步骤
+# 注意：截图会保存到临时目录，需要手动复制：
+cp /var/folders/*/chrome-devtools-mcp-*/screenshot.png /Users/qf/.copaw/workspaces/qwq-automation/hongshutiao/logs/screenshot.png
 ```
 
-### 第一步：打开小红书（使用本地 Chrome）
+### 第一步：检查登录状态
+
+查看快照内容，判断是否已登录：
 
 ```
-使用 Chrome DevTools MCP：
-1. 调用 mcporter 连接本地 Chrome
-2. 使用 navigate 打开 https://www.xiaohongshu.com
-3. 等待页面加载完成
-4. 截图确认页面状态
+已登录标志：
+- 页面有"我"链接（个人主页）
+- 页面右上角有头像
+- URL 包含 /user/profile/
 
-命令示例：
-mcporter call chrome-devtools navigate --args '{"url": "https://www.xiaohongshu.com"}'
-mcporter call chrome-devtools snapshot
+未登录标志：
+- 页面显示"登录"按钮
+- 页面显示二维码
+- 没有"我"链接
 ```
 
-### 第二步：随机浏览首页
+**如果未登录：**
+1. 截图发送给用户
+2. 发送钉钉通知：⚠️ 小红书需要登录，请扫码
+3. 等待用户回复「已登录」
+4. 重新获取快照确认
 
-```
-1. 在首页随机滚动 2-3 次
-2. 停留在任意帖子 3-5 秒
-3. 模拟正常用户的随机行为
-4. 不要快速操作，要有时间间隔
-```
+### 第二步：搜索关键词
 
-### 第三步：搜索关键词
+```bash
+# 1. 获取快照，找到搜索框 uid
+mcporter call chrome-devtools.take_snapshot | grep "搜索小红书"
 
-从以下关键词中随机选择 2-4 个：
+# 2. 在搜索框输入关键词
+mcporter call chrome-devtools.fill --args '{"uid": "搜索框的uid", "value": "红利指数"}'
 
-**核心关键词**：
-- 红利指数
-- 红利低波
-- 股息率
-- 红利ETF
+# 3. 按回车搜索
+mcporter call chrome-devtools.press_key --args '{"key": "Enter"}'
 
-**扩展关键词**：
-- 定投红利
-- 红利基金
-- 高股息
-- 稳健投资
-- 被动收入
+# 4. 等待结果加载
+sleep 2
 
-**长尾关键词**：
-- 红利指数定投
-- 中证红利
-- 红利投资策略
-
-### 第四步：浏览搜索结果
-
-```
-每个关键词：
-1. 搜索后随机滚动 2-3 次
-2. 点击进入 2-5 个帖子
-3. 在每个帖子内：
-   - 停留 10-30 秒
-   - 随机滚动浏览
-   - 以 30% 概率点赞
-   - 以 20% 概率收藏
+# 5. 获取搜索结果快照
+mcporter call chrome-devtools.take_snapshot
 ```
 
-### 第五步：记录学习内容
+### 第三步：浏览帖子
 
-```
-浏览过程中，注意记录：
-1. 热门标题格式
-2. 高赞帖子特点
-3. 用户讨论热点
-4. 常见问题
+```bash
+# 1. 滚动页面
+mcporter call chrome-devtools.evaluate_script --args '{"function": "function() { window.scrollBy(0, 500); return true; }"}'
 
-保存到: hongshutiao/logs/browse_*.jsonl
-```
+# 2. 找到帖子链接
+mcporter call chrome-devtools.take_snapshot | grep "link.*note"
 
-### 第六步：关闭
+# 3. 点击帖子
+mcporter call chrome-devtools.click --args '{"uid": "帖子链接的uid"}'
 
-```
-1. 随机等待 1-3 分钟
-2. 关闭标签页（不要关闭浏览器，保留 Cookie）
-```
+# 4. 等待帖子加载
+sleep 3
 
----
-
-## 行为规范
-
-### 要做的 ✅
-
-- 使用本地 Chrome 浏览器（Chrome DevTools MCP）
-- 先检查登录状态
-- 随机时间间隔（模拟人类节奏）
-- 鼠标滚动自然
-- 停留时间合理
-- 保持登录 Cookie
-
-### 不要做的 ❌
-
-- **禁止使用无头浏览器**
-- **禁止使用自动化浏览器**
-- **禁止自动登录**
-- **禁止跳过登录检查**
-- 不要快速连续点击
-- 不要浏览太多帖子（单次不超过 20 个）
-- 不要关闭整个浏览器（会丢失 Cookie）
-
----
-
-## 登录异常处理流程
-
-```
-场景：检查登录状态时发现未登录
-
-步骤：
-1. 立即停止所有浏览操作
-2. 截图当前页面（包含二维码）
-3. 发送钉钉通知：
-   ⚠️ 小红书需要登录
-   
-   请查看附件中的截图，使用手机小红书 APP 扫码登录。
-   登录成功后，回复「已登录」，我将继续执行浏览任务。
-   
-   注意：请不要关闭浏览器窗口，否则登录状态会丢失。
-
-4. 等待用户回复「已登录」
-5. 重新检查登录状态
-6. 确认登录后再继续浏览任务
+# 5. 在帖子内滚动浏览
+mcporter call chrome-devtools.evaluate_script --args '{"function": "function() { window.scrollBy(0, 300); return true; }"}'
 ```
 
----
+### 第四步：点赞/收藏（可选）
 
-## 日志记录
+```bash
+# 1. 找到点赞按钮 uid
+mcporter call chrome-devtools.take_snapshot | grep "点赞|like"
 
-每次执行后记录：
+# 2. 点击点赞
+mcporter call chrome-devtools.click --args '{"uid": "点赞按钮uid"}'
+```
 
-```json
+### 第五步：记录日志
+
+```python
+# 保存浏览日志到 hongshutiao/logs/browse_*.jsonl
+# 格式：
 {
-  "date": "2026-03-27",
-  "time": "10:32:15",
-  "login_status": "logged_in",
-  "duration_seconds": 420,
-  "keywords_searched": ["红利指数", "股息率"],
-  "posts_viewed": 12,
-  "actions": {
-    "likes": 3,
-    "collects": 2
-  }
+    "timestamp": "2026-03-28T12:00:00",
+    "browser_type": "local_chrome",  # 必须是 local_chrome
+    "login_status": "logged_in",
+    "keywords_searched": ["红利指数"],
+    "posts_viewed": 5,
+    "duration_seconds": 120
 }
 ```
 
 ---
 
-## 技术说明
+## 关键命令速查表
 
-### Chrome DevTools MCP
+| 操作 | 命令 |
+|-----|------|
+| 打开页面 | `mcporter call chrome-devtools.navigate_page --args '{"type": "url", "url": "https://..."}'` |
+| 获取快照 | `mcporter call chrome-devtools.take_snapshot` |
+| 截图 | `mcporter call chrome-devtools.take_screenshot --args '{"filename": "...png"}'` |
+| 点击元素 | `mcporter call chrome-devtools.click --args '{"uid": "..."}'` |
+| 输入文字 | `mcporter call chrome-devtools.fill --args '{"uid": "...", "value": "..."}'` |
+| 按键 | `mcporter call chrome-devtools.press_key --args '{"key": "Enter"}'` |
+| 滚动页面 | `mcporter call chrome-devtools.evaluate_script --args '{"function": "function() { window.scrollBy(0, 500); return true; }"}'` |
+| 列出页面 | `mcporter call chrome-devtools.list_pages` |
 
-- 连接本地 Chrome 浏览器
-- 使用 Chrome DevTools Protocol (CDP)
-- 保留用户数据和 Cookie
-- 不是无头模式
+---
 
-### 关键命令
+## 安全检查清单
 
-```bash
-# 列出可用工具
-mcporter list chrome-devtools
+每次汇报时必须包含：
 
-# 打开页面
-mcporter call chrome-devtools navigate --args '{"url": "https://www.xiaohongshu.com"}'
+- [ ] 是否使用 `mcporter call chrome-devtools.*`？
+- [ ] 截图分辨率是否 > 2000px？（确认是本地 Chrome）
+- [ ] 是否先检查登录状态？
+- [ ] 登录状态是否保持？
 
-# 获取页面快照
-mcporter call chrome-devtools snapshot
+---
 
-# 截图
-mcporter call chrome-devtools screenshot --args '{"filename": "login_qrcode.png"}'
+## 常见错误
 
-# 点击元素
-mcporter call chrome-devtools click --args '{"uid": "element_uid"}'
-
-# 输入文字
-mcporter call chrome-devtools type --args '{"uid": "input_uid", "text": "红利指数"}'
-```
+| 错误 | 原因 | 解决 |
+|-----|------|------|
+| `Tool navigate not found` | 用了错误的工具名 | 使用 `navigate_page` |
+| 截图分辨率 1280x720 | 使用了 browser_use | 改用 Chrome DevTools MCP |
+| 未登录状态 | 无头浏览器无 Cookie | 使用本地 Chrome |
+| `fn is not a function` | evaluate_script 格式错误 | 使用 `function() {...}` 格式 |
 
 ---
 
 **创建时间**: 2026-03-27
+**更新时间**: 2026-03-28（添加明确调用示例和禁止 browser_use）
 **负责人**: 靑枫QwQ_cool
 **指导人**: 靑枫claw
-**更新时间**: 2026-03-27（添加登录检查要求）
