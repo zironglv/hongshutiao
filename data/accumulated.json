@@ -7,6 +7,12 @@
         "dividend_yield": 4.54,
         "pe": 9.17,
         "percentile": 95.0
+      },
+      {
+        "date": "2026-03-29",
+        "dividend_yield": 4.54,
+        "pe": 9.17,
+        "percentile": 95.0
       }
     ]
   },
@@ -15,6 +21,12 @@
     "history": [
       {
         "date": "2026-03-27",
+        "dividend_yield": 4.84,
+        "pe": 10.12,
+        "percentile": 25.0
+      },
+      {
+        "date": "2026-03-29",
         "dividend_yield": 4.84,
         "pe": 10.12,
         "percentile": 25.0
@@ -29,6 +41,12 @@
         "dividend_yield": 4.38,
         "pe": 9.11,
         "percentile": 50.0
+      },
+      {
+        "date": "2026-03-29",
+        "dividend_yield": 4.38,
+        "pe": 9.11,
+        "percentile": 50.0
       }
     ]
   },
@@ -37,6 +55,12 @@
     "history": [
       {
         "date": "2026-03-27",
+        "dividend_yield": 4.96,
+        "pe": 8.15,
+        "percentile": 85.0
+      },
+      {
+        "date": "2026-03-29",
         "dividend_yield": 4.96,
         "pe": 8.15,
         "percentile": 85.0
@@ -51,6 +75,12 @@
         "dividend_yield": 4.69,
         "pe": 8.29,
         "percentile": 75.0
+      },
+      {
+        "date": "2026-03-29",
+        "dividend_yield": 4.69,
+        "pe": 8.29,
+        "percentile": 75.0
       }
     ]
   },
@@ -59,6 +89,12 @@
     "history": [
       {
         "date": "2026-03-27",
+        "dividend_yield": 5.47,
+        "pe": 8.6,
+        "percentile": 50.0
+      },
+      {
+        "date": "2026-03-29",
         "dividend_yield": 5.47,
         "pe": 8.6,
         "percentile": 50.0
