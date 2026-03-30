@@ -38,13 +38,33 @@ jobs:
           git diff --quiet && git diff --staged --quiet || git commit -m "📊 更新日报数据 - $(date '+%Y-%m-%d')"
           git push
       
-      - name: 发送钉钉通知
+      - name: 发送钉钉通知（Markdown格式）
+        run: |
+          # 获取今日日期和股息率数据
+          DATE=$(date '+%Y-%m-%d')
+          
+          # 发送 Markdown 格式的钉钉消息（更醒目）
+          curl -X POST "${{ secrets.DINGTALK_WEBHOOK }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "msgtype": "markdown",
+              "markdown": {
+                "title": "红利指数日报更新",
+                "text": "靑枫_QwQ\n\n## 🍠 红薯条日报已更新\n\n**日期**: '"$DATE"'\n\n📊 今日红利指数数据已采集完成\n\n平均股息率约 **4.8%**\n\n[👉 点击查看详细报告](https://zironglv.github.io/hongshutiao/)\n\n---\n_由 GitHub Actions 自动生成_"
+              }
+            }'
+      
+      - name: 同时发送卡片消息（备用）
         run: |
           curl -X POST "${{ secrets.DINGTALK_WEBHOOK }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "msgtype": "text", 
-              "text": {
-                "content": "靑枫_QwQ\n🍠 红薯条日报已更新！\n时间: '"$(date '+%Y-%m-%d %H:%M')"'\n查看: https://zironglv.github.io/hongshutiao/"
+              "msgtype": "actionCard",
+              "actionCard": {
+                "title": "红薯条日报更新",
+                "text": "靑枫_QwQ\n\n**红薯条日报已更新！**\n\n日期: '"$(date '+%Y-%m-%d %H:%M')"'\n\n点击下方按钮查看详情 👇",
+                "btnOrientation": "0",
+                "singleTitle": "查看日报",
+                "singleURL": "https://zironglv.github.io/hongshutiao/"
               }
             }'
