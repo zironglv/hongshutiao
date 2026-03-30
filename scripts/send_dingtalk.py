@@ -68,22 +68,79 @@ def get_opportunity_stats(analysis):
     return stats
 
 
-def build_news_section(news_list, max_news=3):
-    """构建新闻部分"""
-    if not news_list:
+def extract_news_insights(news_list):
+    """从新闻中提炼观点"""
+    import re
+    
+    insights = []
+    
+    # 观点提取规则
+    rules = [
+        # ETF 表现
+        (r'涨[0-9.]+%', '📈 市场信号：红利ETF表现活跃，显示资金关注度提升'),
+        (r'份额增[0-9.]+万', '💰 资金动向：红利ETF份额增加，资金持续流入'),
+        (r'份额减[0-9.]+万', '⚠️ 资金动向：红利ETF份额缩减，注意资金流向变化'),
+        
+        # 防御属性
+        (r'防御属性|防守', '🛡️ 市场观点：红利资产防御属性凸显，适合震荡市配置'),
+        
+        # 高股息
+        (r'高股息', '📊 投资观点：高股息策略持续受关注，稳健收益属性明显'),
+        
+        # 分红数据
+        (r'分红数据亮眼|分红', '💰 公司动态：上市公司分红数据向好，红利策略基本面支撑'),
+        
+        # 超额收益
+        (r'超额收益', '✅ 业绩表现：红利基金实现超额收益，策略有效性验证'),
+        
+        # 净值变化
+        (r'净值增长', '📊 基金动态：红利基金净值表现值得关注'),
+    ]
+    
+    seen_insights = set()
+    
+    for news in news_list[:5]:
+        title = news.get('title', '')
+        summary = news.get('summary', '')
+        source = news.get('source', '')
+        
+        # 合并标题和摘要进行分析
+        content = title + ' ' + summary
+        
+        for pattern, insight in rules:
+            if re.search(pattern, content) and insight not in seen_insights:
+                insights.append({
+                    'insight': insight,
+                    'source': source,
+                    'news_title': title[:30] + '...' if len(title) > 30 else title,
+                })
+                seen_insights.add(insight)
+    
+    # 如果没有提取到观点，生成一个默认观点
+    if not insights and news_list:
+        insights.append({
+            'insight': '📰 资讯动态：关注红利指数相关市场消息',
+            'source': '综合资讯',
+            'news_title': '',
+        })
+    
+    return insights[:3]  #最多返回3个观点
+
+
+def build_insights_section(insights):
+    """构建观点部分"""
+    if not insights:
         return ""
     
-    lines = ["\n---\n\n## 📰 相关资讯\n"]
+    lines = ["\n---\n\n## 📰 市场观点（提炼自资讯）\n"]
     
-    for i, news in enumerate(news_list[:max_news], 1):
-        title = news.get('title', '')
-        source = news.get('source', '')
-        summary = news.get('summary', '')[:80]  # 限制摘要长度
+    for i, insight in enumerate(insights, 1):
+        text = insight['insight']
+        source = insight.get('source', '')
         
-        lines.append(f"**{i}. {title}**")
-        lines.append(f"   _{source}_")
-        if summary:
-            lines.append(f"   {summary}...")
+        lines.append(f"**{i}. {text}**")
+        if source:
+            lines.append(f"   _来源：{source}_")
         lines.append("")
     
     return '\n'.join(lines)
@@ -98,7 +155,8 @@ def send_markdown_message(data, news_list):
     analysis = data['analysis']
     
     indices_list = build_indices_list(analysis)
-    news_section = build_news_section(news_list)
+    insights = extract_news_insights(news_list)
+    insights_section = build_insights_section(insights)
     
     # 构建消息
     content = f"""{KEYWORD}
@@ -113,12 +171,12 @@ def send_markdown_message(data, news_list):
 
 ---
 
-📈 **观点**: {market_view}
+📈 **整体观点**: {market_view}
 
 🏆 **最高股息率**: {best_yield['name']} (**{best_yield['yield']}%**)
 
 {best_yield['suggestion']}
-{news_section}
+{insights_section}
 ---
 
 [📊 查看完整报告](https://zironglv.github.io/hongshutiao/)
@@ -143,10 +201,14 @@ def send_actioncard_message(data, news_list):
     best_yield = data['best_yield']
     stats = get_opportunity_stats(data['analysis'])
     
-    # 新闻摘要
-    news_hint = ""
-    if news_list:
-        news_hint = f"\n📰 {len(news_list)}条相关资讯"
+    # 提取新闻观点摘要
+    insights = extract_news_insights(news_list)
+    insight_hint = ""
+    if insights:
+        # 取第一个观点的关键部分
+        first_insight = insights[0]['insight']
+        if len(first_insight) > 20:
+            insight_hint = f"\n💡 {first_insight.split('：')[-1][:20]}..."
     
     text = f"""{KEYWORD}
 
@@ -156,7 +218,7 @@ def send_actioncard_message(data, news_list):
 
 📈 观点: {market_view}
 
-🟢可布局: {stats['fair']} | 🟡中性: {stats['neutral']} | 🟠谨慎: {stats['caution']} | 🔴观望: {stats['wait']}{news_hint}
+🟢可布局: {stats['fair']} | 🟡中性: {stats['neutral']} | 🟠谨慎: {stats['caution']} | 🔴观望: {stats['wait']}{insight_hint}
 """
     
     payload = {
@@ -212,6 +274,12 @@ def main():
     # 加载新闻
     news_list = load_news_data()
     print(f"📰 新闻条数: {len(news_list)}")
+    
+    # 提取观点
+    insights = extract_news_insights(news_list)
+    print(f"💡 提炼观点: {len(insights)} 条")
+    for i, insight in enumerate(insights, 1):
+        print(f"   {i}. {insight['insight']}")
     
     # 发送 Markdown 消息
     print("\n📤 发送 Markdown 消息...")
