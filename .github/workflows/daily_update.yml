@@ -43,5 +43,6 @@ jobs:
       - name: 发送钉钉日报推送
         env:
           DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
           python scripts/send_dingtalk.py

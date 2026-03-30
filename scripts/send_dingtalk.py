@@ -69,7 +69,44 @@ def get_opportunity_stats(analysis):
 
 
 def extract_news_insights(news_list):
-    """从新闻中提炼观点"""
+    """从新闻中提炼观点（优先使用 LLM，失败时使用规则）"""
+    import os
+    import sys
+    
+    # 检查是否有 LLM API Key
+    api_key = os.environ.get('DASHSCOPE_API_KEY', '')
+    
+    if api_key:
+        # 尝试使用 LLM 提炼
+        try:
+            sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+            from news_llm_insight import LLMInsightExtractor
+            
+            # 加载股息率数据
+            try:
+                data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'analysis_latest.json')
+                with open(data_path, 'r') as f:
+                    dividend_data = json.load(f)
+            except:
+                dividend_data = None
+            
+            extractor = LLMInsightExtractor()
+            llm_insights = extractor.extract_insights(news_list, dividend_data)
+            
+            # 转换格式
+            result = []
+            for ins in llm_insights:
+                result.append({
+                    'insight': ins.get('insight', ''),
+                    'source': ins.get('source', ''),
+                    'news_title': '',
+                })
+            print("✅ 使用 LLM 提炼观点")
+            return result
+        except Exception as e:
+            print(f"⚠️ LLM 提取失败: {e}，使用规则提取")
+    
+    # 规则提取（备用方案）
     import re
     
     insights = []
