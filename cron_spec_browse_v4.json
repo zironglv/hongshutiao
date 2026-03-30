@@ -1,0 +1,41 @@
+{
+  "spec": {
+    "name": "hongshutiao-browse-v4",
+    "enabled": true,
+    "schedule": {
+      "type": "cron",
+      "cron": "30 10,20 * * *",
+      "timezone": "Asia/Shanghai"
+    },
+    "task_type": "agent",
+    "text": null,
+    "request": {
+      "input": [
+        {
+          "content": [
+            {
+              "text": "[合规养号] 小红书养号任务（v4合规版）。请严格按照 daily_browse.md 中的合规规范执行：1) 使用 Chrome DevTools MCP 连接本地 Chrome（禁止 browser_use）2) 每帖停留 30秒-2分钟 3) 操作间隔 10-30秒随机 4) 每次浏览 5-10 帖 5) 随机点赞 2-5 个 6) 禁止连续快速操作 7) 关注博主每次最多 2-3 个，间隔 2-3 分钟 8) 总时长 5-15 分钟。关键词：红利指数、股息率、红利ETF、高股息、稳健投资、价值投资、基金定投。完成后记录日志到 hongshutiao/logs/。",
+              "type": "text"
+            }
+          ],
+          "role": "user",
+          "type": "message"
+        }
+      ],
+      "session_id": "default",
+      "user_id": "靑枫#SA=="
+    },
+    "dispatch": {
+      "type": "channel",
+      "channel": "dingtalk",
+      "target": {
+        "user_id": "靑枫#SA==",
+        "session_id": "default"
+      },
+      "mode": "final"
+    },
+    "runtime": {
+      "timeout_seconds": 600
+    }
+  }
+}
