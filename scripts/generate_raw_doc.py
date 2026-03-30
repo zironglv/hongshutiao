@@ -148,7 +148,92 @@ def generate_raw_document():
         f.write(doc)
     
     print(f"✅ 原始数据文档已生成: {output_path}")
+    
+    # 同时生成 latest.json 供网页使用
+    generate_latest_json(analysis, news_list)
+    
     return output_path
+
+
+def generate_latest_json(analysis, news_list):
+    """生成网页数据文件"""
+    
+    docs_dir = os.path.join(PROJECT_ROOT, 'docs')
+    os.makedirs(docs_dir, exist_ok=True)
+    
+    # 构建网页数据
+    indices = []
+    for item in analysis.get('analysis', []):
+        indices.append({
+            'name': item.get('name', ''),
+            'code': item.get('code', ''),
+            'yield': item.get('yield', 0),
+            'percentile': item.get('percentile', 0),
+            'level': item.get('level', ''),
+            'opportunity': item.get('opportunity', ''),
+            'suggestion': item.get('suggestion', '')
+        })
+    
+    # 构建观点数据
+    insights = []
+    for news in news_list[:5]:  # 取前5条新闻
+        title = news.get('title', '')
+        source = news.get('source', '')
+        summary = news.get('summary', '')
+        
+        # 根据标题添加情绪标记
+        emoji = '📊'
+        if '涨' in title or '流入' in title or '增加' in title:
+            emoji = '📈'
+        elif '跌' in title or '流出' in title or '减少' in title or '缩水' in title:
+            emoji = '📉'
+        elif '风险' in title or '谨慎' in title:
+            emoji = '⚠️'
+        
+        insights.append({
+            'insight': f"{emoji} {title}",
+            'source': source,
+            'summary': summary
+        })
+    
+    # 构建历史数据（简化版）
+    history = []
+    history_path = os.path.join(DATA_DIR, 'history.json')
+    try:
+        with open(history_path, 'r', encoding='utf-8') as f:
+            history = json.load(f)
+    except:
+        pass
+    
+    # 如果历史数据中没有今天的记录，添加今天的
+    today_record = {
+        'date': analysis.get('date', ''),
+        'indices': indices
+    }
+    
+    if history and history[-1].get('date') != today_record['date']:
+        history.append(today_record)
+        # 只保留最近30天
+        history = history[-30:]
+        with open(history_path, 'w', encoding='utf-8') as f:
+            json.dump(history, f, ensure_ascii=False, indent=2)
+    
+    data = {
+        'date': analysis.get('date', ''),
+        'indices': indices,
+        'insights': insights,
+        'history': history[-7:],  # 最近7天用于图表
+        'avg_yield': analysis.get('avg_yield', ''),
+        'market_view': analysis.get('market_view', ''),
+        'best_yield': analysis.get('best_yield', {})
+    }
+    
+    latest_path = os.path.join(docs_dir, 'data', 'latest.json')
+    os.makedirs(os.path.dirname(latest_path), exist_ok=True)
+    with open(latest_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    
+    print(f"✅ 网页数据已生成: {latest_path}")
 
 
 if __name__ == '__main__':
