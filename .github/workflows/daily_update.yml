@@ -32,17 +32,29 @@ jobs:
         run: |
           python src/main.py
       
+      - name: 生成原始数据文档
+        run: |
+          python scripts/generate_raw_doc.py
+      
       - name: 提交更新
         run: |
-          git config --local user.email "github-actions[bot]@users.norereply.github.com"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -m "📊 更新日报数据 - $(date '+%Y-%m-%d')"
           git push
       
-      - name: 发送钉钉日报推送
+      - name: 发送钉钉通知（数据已更新）
         env:
           DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
-          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
-          python scripts/send_dingtalk.py
+          DATE=$(date '+%Y-%m-%d')
+          curl -X POST "$DINGTALK_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "msgtype": "markdown",
+              "markdown": {
+                "title": "红利数据已更新",
+                "text": "靑枫_QwQ\n\n## 📊 红利指数数据已更新\n\n**日期**: '"$DATE"'\n\n✅ 股息率数据已采集\n✅ 相关资讯已获取\n\n📈 等待 AI Agent 提炼观点...\n\n[查看原始数据](https://github.com/zironglv/hongshutiao/blob/main/output/raw_data_'"$DATE"'.md)"
+              }
+            }'
