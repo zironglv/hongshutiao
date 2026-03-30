@@ -4,56 +4,56 @@
     {
       "name": "300红利低波",
       "code": "930740",
-      "yield": 4.54,
-      "percentile": 95.0,
-      "level": "high",
-      "opportunity": "caution",
-      "suggestion": "⚠️ 300红利低波当前股息率处于历史高位，虽然收益可观，但需注意回调风险。"
+      "yield": 4.47,
+      "percentile": 45.0,
+      "level": "medium",
+      "opportunity": "neutral",
+      "suggestion": "📌 300红利低波股息率适中，可按需配置。"
     },
     {
       "name": "红利低波100",
       "code": "930955",
-      "yield": 4.84,
-      "percentile": 25.0,
+      "yield": 4.83,
+      "percentile": 20.0,
       "level": "high",
-      "opportunity": "fair",
-      "suggestion": "📊 红利低波100当前股息率处于偏低位置，可以考虑逢低布局。"
+      "opportunity": "good",
+      "suggestion": "💎 红利低波100当前股息率处于历史低位，是不错的配置时机，建议关注。"
     },
     {
       "name": "东证红利低波",
       "code": "931446",
-      "yield": 4.38,
-      "percentile": 50.0,
+      "yield": 4.37,
+      "percentile": 40.0,
       "level": "medium",
-      "opportunity": "neutral",
-      "suggestion": "📌 东证红利低波股息率适中，可按需配置。"
+      "opportunity": "fair",
+      "suggestion": "📊 东证红利低波当前股息率处于偏低位置，可以考虑逢低布局。"
     },
     {
       "name": "红利低波",
       "code": "H30269",
-      "yield": 4.96,
-      "percentile": 85.0,
+      "yield": 4.91,
+      "percentile": 45.0,
       "level": "high",
-      "opportunity": "caution",
-      "suggestion": "⚠️ 红利低波当前股息率处于历史高位，虽然收益可观，但需注意回调风险。"
+      "opportunity": "neutral",
+      "suggestion": "📈 红利低波股息率较高，值得关注。"
     },
     {
       "name": "上红低波",
       "code": "H50040",
-      "yield": 4.69,
-      "percentile": 75.0,
+      "yield": 4.67,
+      "percentile": 55.0,
       "level": "high",
-      "opportunity": "wait",
-      "suggestion": "👀 上红低波当前股息率偏高，建议观望，等待更好时机。"
+      "opportunity": "neutral",
+      "suggestion": "📈 上红低波股息率较高，值得关注。"
     },
     {
       "name": "沪港深红利低波",
       "code": "930992",
-      "yield": 5.47,
-      "percentile": 50.0,
+      "yield": 5.46,
+      "percentile": 40.0,
       "level": "very_high",
-      "opportunity": "neutral",
-      "suggestion": "💰 沪港深红利低波股息率超过5%，具有较好的配置价值。"
+      "opportunity": "fair",
+      "suggestion": "📊 沪港深红利低波当前股息率处于偏低位置，可以考虑逢低布局。"
     }
   ],
   "insights": [
@@ -85,19 +85,19 @@
   ],
   "history": [],
   "avg_yield": "",
-  "market_view": "红利指数整体股息率处于较高水平，部分指数需注意风险。",
+  "market_view": "红利指数整体股息率处于较高水平，存在较好的配置机会。",
   "best_yield": {
     "code": "930992",
     "name": "沪港深红利低波",
-    "yield": 5.47,
-    "pe": 8.6,
-    "percentile": 50.0,
+    "yield": 5.46,
+    "pe": 8.61,
+    "percentile": 40.0,
     "level": "very_high",
-    "opportunity": "neutral",
-    "suggestion": "💰 沪港深红利低波股息率超过5%，具有较好的配置价值。",
+    "opportunity": "fair",
+    "suggestion": "📊 沪港深红利低波当前股息率处于偏低位置，可以考虑逢低布局。",
     "reasons": [
-      "股息率 5.47% 处于较高水平（>5%）",
-      "历史分位数 50.0%，处于中间位置"
+      "股息率 5.46% 处于较高水平（>5%）",
+      "历史分位数 40.0%，处于偏低位置"
     ]
   }
 }
