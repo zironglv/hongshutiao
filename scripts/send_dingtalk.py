@@ -23,6 +23,19 @@ def load_analysis_data():
         return json.load(f)
 
 
+def load_news_data():
+    """加载新闻数据"""
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(script_dir, '..', 'data', 'news_cache.json')
+    
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('news', [])
+    except:
+        return []
+
+
 def build_indices_list(analysis):
     """构建指数列表字符串"""
     lines = []
@@ -55,7 +68,28 @@ def get_opportunity_stats(analysis):
     return stats
 
 
-def send_markdown_message(data):
+def build_news_section(news_list, max_news=3):
+    """构建新闻部分"""
+    if not news_list:
+        return ""
+    
+    lines = ["\n---\n\n## 📰 相关资讯\n"]
+    
+    for i, news in enumerate(news_list[:max_news], 1):
+        title = news.get('title', '')
+        source = news.get('source', '')
+        summary = news.get('summary', '')[:80]  # 限制摘要长度
+        
+        lines.append(f"**{i}. {title}**")
+        lines.append(f"   _{source}_")
+        if summary:
+            lines.append(f"   {summary}...")
+        lines.append("")
+    
+    return '\n'.join(lines)
+
+
+def send_markdown_message(data, news_list):
     """发送 Markdown 格式消息"""
     
     date = data['date']
@@ -64,6 +98,7 @@ def send_markdown_message(data):
     analysis = data['analysis']
     
     indices_list = build_indices_list(analysis)
+    news_section = build_news_section(news_list)
     
     # 构建消息
     content = f"""{KEYWORD}
@@ -83,7 +118,7 @@ def send_markdown_message(data):
 🏆 **最高股息率**: {best_yield['name']} (**{best_yield['yield']}%**)
 
 {best_yield['suggestion']}
-
+{news_section}
 ---
 
 [📊 查看完整报告](https://zironglv.github.io/hongshutiao/)
@@ -100,13 +135,18 @@ def send_markdown_message(data):
     return payload
 
 
-def send_actioncard_message(data):
+def send_actioncard_message(data, news_list):
     """发送 ActionCard 格式消息（精简版）"""
     
     date = data['date']
     market_view = data.get('market_view', '暂无观点')
     best_yield = data['best_yield']
     stats = get_opportunity_stats(data['analysis'])
+    
+    # 新闻摘要
+    news_hint = ""
+    if news_list:
+        news_hint = f"\n📰 {len(news_list)}条相关资讯"
     
     text = f"""{KEYWORD}
 
@@ -116,7 +156,7 @@ def send_actioncard_message(data):
 
 📈 观点: {market_view}
 
-🟢可布局: {stats['fair']} | 🟡中性: {stats['neutral']} | 🟠谨慎: {stats['caution']} | 🔴观望: {stats['wait']}
+🟢可布局: {stats['fair']} | 🟡中性: {stats['neutral']} | 🟠谨慎: {stats['caution']} | 🔴观望: {stats['wait']}{news_hint}
 """
     
     payload = {
@@ -169,14 +209,18 @@ def main():
         print(f"❌ 加载数据失败: {e}")
         sys.exit(1)
     
+    # 加载新闻
+    news_list = load_news_data()
+    print(f"📰 新闻条数: {len(news_list)}")
+    
     # 发送 Markdown 消息
     print("\n📤 发送 Markdown 消息...")
-    md_payload = send_markdown_message(data)
+    md_payload = send_markdown_message(data, news_list)
     send_message(md_payload)
     
     # 发送 ActionCard 消息
     print("\n📤 发送 ActionCard 消息...")
-    ac_payload = send_actioncard_message(data)
+    ac_payload = send_actioncard_message(data, news_list)
     send_message(ac_payload)
     
     print("\n✅ 日报推送完成")

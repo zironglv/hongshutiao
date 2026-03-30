@@ -23,6 +23,7 @@ from storage import DataStorage
 from analyzer import DividendAnalyzer
 from generator import ContentGenerator
 from news_fetcher import NewsFetcher
+from news_tavily import TavilyNewsFetcher
 
 # 输出目录
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, 'output')
@@ -77,13 +78,21 @@ def run_daily_task():
     
     # 4. 获取新闻（可选，失败不影响主流程）
     logger.info("\n📰 Step 4: 获取新闻")
-    news_fetcher = NewsFetcher()
+    # 获取新闻资讯（Tavily API）
+    news = []
+    tavily_fetcher = TavilyNewsFetcher()
     try:
-        news = news_fetcher.fetch_finance_news()
+        news = tavily_fetcher.fetch_news(max_results=5)
         logger.info(f"✅ 获取到 {len(news)} 条新闻")
     except Exception as e:
-        logger.warning(f"⚠️ 新闻获取失败: {e}，跳过")
-        news = []
+        logger.warning(f"⚠️ Tavily 新闻获取失败: {e}，尝试备选方案")
+        try:
+            news_fetcher = NewsFetcher()
+            news = news_fetcher.fetch_finance_news()
+            logger.info(f"✅ 备选方案获取到 {len(news)} 条新闻")
+        except Exception as e2:
+            logger.warning(f"⚠️ 新闻获取全部失败: {e2}")
+            news = []
     
     # 5. 生成内容
     logger.info("\n✍️ Step 5: 生成内容")
