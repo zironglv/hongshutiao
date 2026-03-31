@@ -159,7 +159,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="hint">💡 分位数低 = 股息率偏高（股价相对便宜）｜点击代码可在东方财富查询详情</p>
+        <p class="hint">💡 分位数低 = 股息率偏高（股价相对便宜）</p>
         
         <div class="divider"></div>
         
@@ -299,13 +299,10 @@
                 const tClass = i.percentile < 30 ? 'tag-good' : i.percentile < 60 ? 'tag-mid' : 'tag-warn';
                 const tText = i.percentile < 30 ? '🟢值得关注' : i.percentile < 60 ? '🟡中性' : '🟠观望';
                 
-                // 东方财富链接
-                const efUrl = `https://quote.eastmoney.com/concept/${i.code}.html`;
-                
                 return `
                     <tr>
                         <td><strong>${i.name}</strong></td>
-                        <td><a href="${efUrl}" target="_blank" class="code-val" title="点击查看详情">${i.code}</a></td>
+                        <td><span class="code-val">${i.code}</span></td>
                         <td><span class="yield-val">${i.yield}%</span>${change}</td>
                         <td><span class="perc-val ${pClass}">${i.percentile}%</span></td>
                         <td><span class="tag ${tClass}">${tText}</span></td>
