@@ -7,7 +7,6 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        /* Notion 风格配色 */
         :root {
             --bg-page: #ffffff;
             --bg-secondary: #f7f6f3;
@@ -24,7 +23,7 @@
             --accent-red: #e03e3e;
             --accent-purple: #9065b0;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            --font-mono: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace;
+            --font-mono: "SF Mono", Monaco, monospace;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -38,414 +37,215 @@
             font-size: 16px;
         }
 
-        .page {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 80px 96px;
-        }
+        .page { max-width: 900px; margin: 0 auto; padding: 80px 96px; }
+        @media (max-width: 768px) { .page { padding: 40px 24px; } }
 
-        @media (max-width: 768px) {
-            .page { padding: 40px 24px; }
-        }
-
-        .page-icon { font-size: 78px; margin-bottom: 16px; user-select: none; }
+        .page-icon { font-size: 78px; margin-bottom: 16px; }
         .page-title { font-size: 40px; font-weight: 700; margin-bottom: 8px; line-height: 1.2; }
-        .page-description { font-size: 16px; color: var(--text-secondary); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-light); }
+        .page-desc { font-size: 16px; color: var(--text-secondary); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-light); }
 
-        .update-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: var(--bg-secondary);
-            border-radius: 4px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 32px;
-        }
-
+        .update-badge { display: inline-flex; padding: 4px 10px; background: var(--bg-secondary); border-radius: 4px; font-size: 14px; color: var(--text-secondary); margin-bottom: 32px; }
         .divider { height: 1px; background: var(--border-light); margin: 24px 0; }
 
-        .block-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin: 32px 0 16px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .block-title { font-size: 24px; font-weight: 600; margin: 32px 0 16px 0; display: flex; align-items: center; gap: 8px; }
 
-        .callout {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px;
-            background: var(--bg-callout);
-            border-radius: 4px;
-            margin: 16px 0;
-        }
+        .callout { display: flex; gap: 12px; padding: 16px; background: var(--bg-callout); border-radius: 4px; margin: 16px 0; }
+        .callout-icon { font-size: 20px; }
+        .callout-content { flex: 1; }
 
-        .callout-icon { font-size: 20px; flex-shrink: 0; }
-        .callout-content { flex: 1; font-size: 16px; }
-
-        .sentiment-callout {
-            background: linear-gradient(90deg, rgba(15, 123, 108, 0.08) 0%, rgba(15, 123, 108, 0.02) 100%);
-        }
-
+        .sentiment-box { background: linear-gradient(90deg, rgba(15, 123, 108, 0.08) 0%, rgba(15, 123, 108, 0.02) 100%); }
         .sentiment-score { font-size: 32px; font-weight: 700; color: var(--accent-green); }
         .sentiment-label { font-size: 14px; padding: 2px 8px; background: rgba(15, 123, 108, 0.15); color: var(--accent-green); border-radius: 4px; margin-left: 8px; }
-        .sentiment-bar { width: 100%; height: 6px; background: var(--border-light); border-radius: 3px; margin-top: 12px; overflow: hidden; }
-        .sentiment-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .sentiment-bar { width: 100%; height: 6px; background: var(--border-light); border-radius: 3px; margin-top: 12px; }
+        .sentiment-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
 
-        .table-wrapper { margin: 16px 0; overflow-x: auto; }
+        .table-wrap { margin: 16px 0; overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-
-        .data-table th {
-            padding: 8px 12px;
-            text-align: left;
-            font-weight: 500;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border-medium);
-        }
-
-        .data-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
+        .data-table th { padding: 8px 12px; text-align: left; font-weight: 500; color: var(--text-secondary); border-bottom: 1px solid var(--border-medium); }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-light); }
         .data-table tr:last-child td { border-bottom: none; }
         .data-table tr:hover td { background: var(--bg-hover); }
 
-        .yield-value { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--accent-blue); }
-        .percentile-value { font-family: var(--font-mono); font-size: 14px; }
-        .percentile-low { color: var(--accent-green); }
-        .percentile-medium { color: var(--text-primary); }
-        .percentile-high { color: var(--accent-yellow); }
+        .yield-val { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--accent-blue); }
+        .perc-val { font-family: var(--font-mono); font-size: 14px; }
+        .perc-low { color: var(--accent-green); }
+        .perc-mid { color: var(--text-primary); }
+        .perc-high { color: var(--accent-yellow); }
 
-        .status-tag { display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 500; }
+        .tag { display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 500; }
         .tag-good { background: rgba(15, 123, 108, 0.12); color: var(--accent-green); }
-        .tag-neutral { background: rgba(35, 131, 226, 0.12); color: var(--accent-blue); }
-        .tag-caution { background: rgba(217, 115, 13, 0.12); color: var(--accent-yellow); }
+        .tag-mid { background: rgba(35, 131, 226, 0.12); color: var(--accent-blue); }
+        .tag-warn { background: rgba(217, 115, 13, 0.12); color: var(--accent-yellow); }
 
-        .chart-block { margin: 24px 0; padding: 20px; background: var(--bg-secondary); border-radius: 4px; }
-        .chart-container { height: 300px; }
+        .chart-box { margin: 24px 0; padding: 20px; background: var(--bg-secondary); border-radius: 4px; }
+        .chart-wrap { height: 300px; }
 
-        .disclaimer-block {
-            margin: 48px 0 24px 0;
-            padding: 16px;
-            background: rgba(224, 62, 62, 0.06);
-            border-radius: 4px;
-            border: 1px solid rgba(224, 62, 62, 0.15);
-        }
+        .insight-list { margin: 16px 0; }
+        .insight-item { display: flex; gap: 8px; padding: 8px 0; font-size: 15px; }
+        .insight-dot { width: 6px; height: 6px; background: var(--text-primary); border-radius: 50%; margin-top: 7px; }
 
-        .disclaimer-icon { color: var(--accent-red); font-size: 14px; margin-bottom: 8px; }
+        .disclaimer { margin: 48px 0 24px 0; padding: 16px; background: rgba(224, 62, 62, 0.06); border-radius: 4px; border: 1px solid rgba(224, 62, 62, 0.15); }
+        .disclaimer-title { color: var(--accent-red); font-size: 14px; margin-bottom: 8px; }
         .disclaimer-text { color: var(--text-secondary); font-size: 14px; }
 
-        .page-footer {
-            margin-top: 48px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-light);
-            text-align: center;
-            color: var(--text-gray);
-            font-size: 14px;
-        }
-
-        .footer-link { color: var(--text-secondary); text-decoration: none; margin: 0 12px; }
-        .footer-link:hover { color: var(--accent-blue); }
+        .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-light); text-align: center; color: var(--text-gray); font-size: 14px; }
+        .footer a { color: var(--text-secondary); text-decoration: none; margin: 0 12px; }
+        .footer a:hover { color: var(--accent-blue); }
 
         .loading { color: var(--text-gray); text-align: center; padding: 20px; }
-        .section-footer { font-size: 13px; color: var(--text-gray); margin-top: 12px; }
+        .error { color: var(--accent-red); text-align: center; padding: 20px; }
+        .hint { font-size: 13px; color: var(--text-gray); margin-top: 12px; }
     </style>
 </head>
 <body>
     <div class="page">
         <div class="page-icon">📊</div>
         <h1 class="page-title">红利指数日报</h1>
-        <p class="page-description">每日股息率追踪，记录红利投资数据</p>
+        <p class="page-desc">每日股息率追踪，记录红利投资数据</p>
         
         <div class="update-badge" id="updateBadge">📅 加载中...</div>
         <div class="divider"></div>
         
         <h2 class="block-title">🌡️ 市场情绪热度</h2>
-        <div class="callout sentiment-callout">
+        <div class="callout sentiment-box">
             <span class="callout-icon">📈</span>
             <div class="callout-content">
                 <div>
-                    <span class="sentiment-score" id="sentimentScore">--</span>
-                    <span class="sentiment-label" id="sentimentLabel">计算中</span>
+                    <span class="sentiment-score" id="sentScore">--</span>
+                    <span class="sentiment-label" id="sentLabel">计算中</span>
                 </div>
-                <div class="sentiment-bar">
-                    <div class="sentiment-fill" id="sentimentFill"></div>
-                </div>
-                <p style="margin-top: 8px; font-size: 14px; color: var(--text-secondary);" id="sentimentDesc">
-                    综合分析指数分位数位置
-                </p>
+                <div class="sentiment-bar"><div class="sentiment-fill" id="sentFill"></div></div>
+                <p style="margin-top:8px;font-size:14px;color:var(--text-secondary)" id="sentDesc">综合分析指数分位数</p>
             </div>
         </div>
         
         <div class="divider"></div>
         
         <h2 class="block-title">📉 今日股息率数据</h2>
-        <div class="table-wrapper">
+        <div class="table-wrap">
             <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>指数名称</th>
-                        <th>股息率</th>
-                        <th>分位数</th>
-                        <th>状态</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <tr><td colspan="4" class="loading">加载中...</td></tr>
-                </tbody>
+                <thead><tr><th>指数</th><th>股息率</th><th>分位数</th><th>状态</th></tr></thead>
+                <tbody id="tableBody"><tr><td colspan="4" class="loading">加载中...</td></tr></tbody>
             </table>
         </div>
-        <p class="section-footer">💡 分位数低 = 股息率偏高（股价相对便宜）</p>
+        <p class="hint">💡 分位数低 = 股息率偏高（股价相对便宜）</p>
         
         <div class="divider"></div>
         
-        <h2 class="block-title">📈 股息率趋势</h2>
-        <div class="chart-block">
-            <div class="chart-container">
-                <canvas id="yieldChart"></canvas>
-            </div>
+        <h2 class="block-title">💡 今日资讯</h2>
+        <div class="insight-list" id="insightList"><div class="loading">加载中...</div></div>
+        
+        <div class="divider"></div>
+        
+        <h2 class="block-title">📈 股息率对比</h2>
+        <div class="chart-box"><div class="chart-wrap"><canvas id="yieldChart"></canvas></div></div>
+        
+        <div class="disclaimer">
+            <div class="disclaimer-title">⚠️ 重要提示</div>
+            <div class="disclaimer-text">以上内容仅为数据记录，不构成投资建议。投资有风险，入市需谨慎。</div>
         </div>
         
-        <div class="disclaimer-block">
-            <div class="disclaimer-icon">⚠️ 重要提示</div>
-            <div class="disclaimer-text">
-                以上内容仅为数据记录，不构成任何投资建议。投资有风险，入市需谨慎。
-            </div>
-        </div>
-        
-        <div class="page-footer">
-            <a href="https://github.com/zironglv/hongshutiao" class="footer-link">GitHub</a>
+        <div class="footer">
+            <a href="https://github.com/zironglv/hongshutiao">GitHub</a>
             <span>红利指数日报</span>
         </div>
     </div>
     
     <script>
-        // 指数颜色配置
-        const COLORS = ['#2383e2', '#9065b0', '#0f7b6c', '#d9730d', '#e03e3e', '#d44c9d'];
+        const COLORS = ['#2383e2', '#0f7b6c', '#d9730d', '#9065b0', '#e03e3e', '#d44c9d'];
         const INDEX_ORDER = ['沪港深红利低波', '红利低波100', '红利低波', '300红利低波', '东证红利低波', '上红低波'];
-        
-        let chartInstance = null;
+        let myChart = null;
 
-        async function loadData() {
+        async function load() {
             try {
-                // 加载累积历史数据
-                const response = await fetch('data/accumulated.json');
-                const data = await response.json();
-                renderPage(data);
-            } catch (error) {
-                console.error('数据加载失败:', error);
-                document.getElementById('tableBody').innerHTML = 
-                    '<tr><td colspan="4" style="color: var(--accent-red); text-align: center;">数据加载失败</td></tr>';
+                const res = await fetch('data/latest.json');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                render(data);
+            } catch (e) {
+                console.error(e);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" class="error">加载失败: ' + e.message + '</td></tr>';
             }
         }
 
-        function renderPage(data) {
-            // 提取所有指数的最新数据
-            const indices = [];
-            const latestDate = '2026-03-30'; // 默认日期
+        function render(data) {
+            // 日期
+            document.getElementById('updateBadge').textContent = '📅 ' + (data.date || '未知');
             
-            for (const [code, info] of Object.entries(data)) {
-                if (info.history && info.history.length > 0) {
-                    const latest = info.history[info.history.length - 1];
-                    indices.push({
-                        name: info.name,
-                        code: code,
-                        yield: latest.dividend_yield,
-                        percentile: latest.percentile
-                    });
-                }
-            }
-
-            // 按预定顺序排序
-            indices.sort((a, b) => INDEX_ORDER.indexOf(a.name) - INDEX_ORDER.indexOf(b.name));
-
-            // 更新时间
-            document.getElementById('updateBadge').textContent = '📅 ' + latestDate;
+            // 指数数据
+            const indices = data.indices || [];
             
-            // 计算情绪热度
-            const sentiment = calculateSentiment(indices);
-            document.getElementById('sentimentScore').textContent = sentiment.score;
-            document.getElementById('sentimentLabel').textContent = sentiment.label;
-            document.getElementById('sentimentFill').style.width = sentiment.score + '%';
-            document.getElementById('sentimentFill').style.background = sentiment.color;
-            document.getElementById('sentimentDesc').textContent = sentiment.desc;
-            
-            // 渲染表格
-            renderTable(indices);
-            
-            // 渲染趋势图
-            renderChart(data);
-        }
-
-        function calculateSentiment(indices) {
-            // 基于分位数计算：分位数低 = 情绪偏热（机会多）
-            let avgPercentile = 0;
-            indices.forEach(idx => avgPercentile += idx.percentile);
-            avgPercentile = avgPercentile / indices.length;
-            
-            // 反转：分位数低 -> 情绪热度高
-            const score = Math.round(100 - avgPercentile);
+            // 情绪热度
+            let avgPerc = 0;
+            indices.forEach(i => avgPerc += i.percentile);
+            avgPerc = indices.length ? avgPerc / indices.length : 50;
+            const score = Math.round(100 - avgPerc);
             
             let label, color, desc;
-            if (score >= 70) {
-                label = '🔥 偏热';
-                color = 'var(--accent-green)';
-                desc = '整体分位数偏低，值得关注';
-            } else if (score >= 50) {
-                label = '🟡 中性';
-                color = 'var(--accent-blue)';
-                desc = '多空交织，按需配置';
-            } else if (score >= 30) {
-                label = '🟠 偏冷';
-                color = 'var(--accent-yellow)';
-                desc = '分位数偏高，暂观望';
-            } else {
-                label = '❄️ 冷清';
-                color = 'var(--accent-red)';
-                desc = '分位数很高，不建议入场';
-            }
+            if (score >= 70) { label='🔥偏热'; color='var(--accent-green)'; desc='整体分位数偏低，值得关注'; }
+            else if (score >= 50) { label='🟡中性'; color='var(--accent-blue)'; desc='多空交织，按需配置'; }
+            else if (score >= 30) { label='🟠偏冷'; color='var(--accent-yellow)'; desc='分位数偏高，暂观望'; }
+            else { label='❄️冷清'; color='var(--accent-red)'; desc='分位数很高'; }
             
-            return { score, label, color, desc };
-        }
-
-        function renderTable(indices) {
-            const tbody = document.getElementById('tableBody');
+            document.getElementById('sentScore').textContent = score;
+            document.getElementById('sentLabel').textContent = label;
+            document.getElementById('sentFill').style.width = score + '%';
+            document.getElementById('sentFill').style.background = color;
+            document.getElementById('sentDesc').textContent = desc;
             
-            if (!indices.length) {
-                tbody.innerHTML = '<tr><td colspan="4">暂无数据</td></tr>';
-                return;
-            }
+            // 表格
+            const sorted = [...indices].sort((a,b) => INDEX_ORDER.indexOf(a.name) - INDEX_ORDER.indexOf(b.name));
             
-            tbody.innerHTML = indices.map(idx => {
-                const percClass = idx.percentile < 30 ? 'percentile-low' :
-                                  idx.percentile < 60 ? 'percentile-medium' : 'percentile-high';
-                
-                let tagClass, tagText;
-                if (idx.percentile < 30) {
-                    tagClass = 'tag-good';
-                    tagText = '🟢 值得关注';
-                } else if (idx.percentile < 60) {
-                    tagClass = 'tag-neutral';
-                    tagText = '🟡 中性';
-                } else {
-                    tagClass = 'tag-caution';
-                    tagText = '🟠 观望';
-                }
-                
-                return `
-                    <tr>
-                        <td><strong>${idx.name}</strong></td>
-                        <td><span class="yield-value">${idx.yield}%</span></td>
-                        <td><span class="percentile-value ${percClass}">${idx.percentile}%</span></td>
-                        <td><span class="status-tag ${tagClass}">${tagText}</span></td>
-                    </tr>
-                `;
+            document.getElementById('tableBody').innerHTML = sorted.map(i => {
+                const pClass = i.percentile < 30 ? 'perc-low' : i.percentile < 60 ? 'perc-mid' : 'perc-high';
+                const tClass = i.percentile < 30 ? 'tag-good' : i.percentile < 60 ? 'tag-mid' : 'tag-warn';
+                const tText = i.percentile < 30 ? '🟢值得关注' : i.percentile < 60 ? '🟡中性' : '🟠观望';
+                return `<tr>
+                    <td><strong>${i.name}</strong></td>
+                    <td><span class="yield-val">${i.yield}%</span></td>
+                    <td><span class="perc-val ${pClass}">${i.percentile}%</span></td>
+                    <td><span class="tag ${tClass}">${tText}</span></td>
+                </tr>`;
             }).join('');
-        }
-
-        function renderChart(data) {
-            const ctx = document.getElementById('yieldChart');
             
-            // 构建日期列表（取所有历史数据的日期）
-            const allDates = new Set();
-            for (const info of Object.values(data)) {
-                info.history.forEach(h => allDates.add(h.date));
-            }
-            const dates = Array.from(allDates).sort();
-            const labels = dates.map(d => d.slice(5)); // 只显示月日
+            // 资讯
+            const insights = data.insights || [];
+            document.getElementById('insightList').innerHTML = insights.length 
+                ? insights.slice(0,5).map(i => `<div class="insight-item"><span class="insight-dot"></span><span>${i.summary||i.title||''}</span></div>`).join('')
+                : '<p style="color:var(--text-gray)">今日暂无资讯</p>';
             
-            // 构建各指数的数据集
-            const datasets = [];
-            let colorIdx = 0;
+            // 图表
+            if (myChart) myChart.destroy();
             
-            for (const name of INDEX_ORDER) {
-                // 找到对应指数
-                for (const [code, info] of Object.entries(data)) {
-                    if (info.name === name) {
-                        const yieldData = dates.map(date => {
-                            const record = info.history.find(h => h.date === date);
-                            return record ? record.dividend_yield : null;
-                        });
-                        
-                        datasets.push({
-                            label: name,
-                            data: yieldData,
-                            borderColor: COLORS[colorIdx],
-                            backgroundColor: COLORS[colorIdx] + '20',
-                            tension: 0.3,
-                            fill: false,
-                            pointRadius: 3,
-                            pointHoverRadius: 6,
-                            borderWidth: 2,
-                            spanGaps: true // 连接断点
-                        });
-                        colorIdx++;
-                        break;
-                    }
-                }
-            }
-            
-            // 销毁旧图表
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-            
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets },
+            myChart = new Chart(document.getElementById('yieldChart'), {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(i => i.name),
+                    datasets: [{
+                        label: '股息率',
+                        data: sorted.map(i => i.yield),
+                        backgroundColor: sorted.map((_, idx) => COLORS[idx] + '80'),
+                        borderColor: sorted.map((_, idx) => COLORS[idx]),
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#787774',
-                                usePointStyle: true,
-                                padding: 20,
-                                font: { size: 12 }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y + '%';
-                                }
-                            }
-                        }
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + '%' } }
                     },
                     scales: {
-                        x: {
-                            grid: { color: '#e9e9e7' },
-                            ticks: { color: '#9b9a97', font: { size: 11 } }
-                        },
-                        y: {
-                            grid: { color: '#e9e9e7' },
-                            ticks: { 
-                                color: '#9b9a97',
-                                font: { size: 11 },
-                                callback: v => v.toFixed(2) + '%'
-                            },
-                            min: 4.0,
-                            max: 5.8
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
+                        x: { grid: { color: '#e9e9e7' }, ticks: { color: '#9b9a97', font: { size: 11 }, maxRotation: 45 } },
+                        y: { grid: { color: '#e9e9e7' }, ticks: { color: '#9b9a97', callback: v => v + '%' }, min: 4, max: 6 }
                     }
                 }
             });
         }
 
-        // 页面加载
-        loadData();
+        load();
     </script>
 </body>
 </html>
