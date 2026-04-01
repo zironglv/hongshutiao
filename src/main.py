@@ -177,6 +177,16 @@ def run_daily_task():
     except Exception as e:
         logger.warning(f"⚠️ 网站数据更新失败: {e}")
     
+    # 8. 生成封面图片
+    logger.info("\n🖼️ Step 8: 生成封面图片")
+    try:
+        import image_generator
+        cover_path = image_generator.generate_cover_image(raw_data)
+        if cover_path:
+            logger.info(f"✅ 封面图片已生成: {cover_path}")
+    except Exception as e:
+        logger.warning(f"⚠️ 封面图片生成失败: {e}")
+    
     # 打印结果
     print("\n" + "="*60)
     print(push_msg)
