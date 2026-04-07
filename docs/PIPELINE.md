@@ -159,21 +159,36 @@ python3 analyzer.py --date YYYY-MM-DD
 
 ## Step 4: 封面生成
 
-**执行方式**: Script
-**脚本**: `scripts/generate_cover.py`
-**输入**: `data/YYYY-MM-DD/analyzed.json`, `content/YYYY-MM-DD/content.json`
+**执行方式**: Script (HTML模板 + Playwright截图)
+**模板位置**: `~/.copaw/workspaces/qwq-automation/skills/hongshutiao-daily-cover/templates/`
+**脚本**: `~/projects/xhs-account-growth/scripts/html_to_png.py`
+**输入**: `data/YYYY-MM-DD/analyzed.json`
 **输出**: `assets/YYYY-MM-DD/cover_*.png`
 
+**流程**：
 ```bash
-cd ~/.copaw/workspaces/qwq-automation/hongshutiao/scripts
-python3 generate_cover.py --date YYYY-MM-DD
+# 1. 复制模板到 assets 目录
+cp ~/.copaw/workspaces/qwq-automation/skills/hongshutiao-daily-cover/templates/cover_*.html ~/projects/xhs-account-growth/assets/
+
+# 2. 更新 HTML 模板中的数据
+#    - 日期: date-tag
+#    - 情绪热度分数: heat-score
+#    - 机会提示: opp-title
+#    - 股息率表格数据: yield-val, perc-val, perc-fill width
+
+# 3. 运行 Playwright 截图
+cd ~/projects/xhs-account-growth/scripts
+python3 html_to_png.py
+
+# 4. 复制封面图到 hongshutiao 目录
+cp ~/projects/xhs-account-growth/assets/xhs_cover_*.png ~/.copaw/workspaces/qwq-automation/hongshutiao/assets/YYYY-MM-DD/
 ```
 
 **状态更新**: `content_generated` → `generating_cover` → `generated`
 
-**封面设计**:
+**封面设计** (Notion 风格，白底 #ffffff，主色 #37352f):
 - Cover 1: 概览（情绪热度 + 最佳配置机会 + 数据表格）
-- Cover 2: 趋势图（近15日股息率走势）
+- Cover 2: 趋势图（近7日股息率走势）
 - Cover 3: 观点（今日观点 + 操作建议）
 
 ## Step 5: 发送审核通知

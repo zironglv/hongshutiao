@@ -1,0 +1,46 @@
+{
+  "current_plan": {
+    "date": "2026-04-02",
+    "topic": "TTM股息率科普",
+    "angle": "新手入门概念解释",
+    "target": "理财小白",
+    "status": "completed",
+    "note_id": "69ce35d600000000210120a3"
+  },
+  "history": [
+    {
+      "date": "2026-04-02",
+      "topic": "TTM股息率科普",
+      "angle": "新手入门概念解释",
+      "target": "理财小白",
+      "status": "completed",
+      "note_id": "69ce35d600000000210120a3"
+    }
+  ],
+  "topic_pool": [
+    {
+      "topic": "估值百分位怎么用",
+      "angle": "实操方法",
+      "priority": 1,
+      "source": "养号评论区高频问题"
+    },
+    {
+      "topic": "红利低波定投策略",
+      "angle": "实操教程",
+      "priority": 2,
+      "source": "养号搜索词推荐"
+    },
+    {
+      "topic": "什么时候买入红利",
+      "angle": "时机判断",
+      "priority": 3,
+      "source": "养号评论区高频问题"
+    },
+    {
+      "topic": "分红收益怎么算",
+      "angle": "计算方法",
+      "priority": 4,
+      "source": "养号帖子内容"
+    }
+  ]
+}

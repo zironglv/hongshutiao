@@ -1,0 +1,35 @@
+{
+  "name": "每日回顾",
+  "enabled": true,
+  "schedule": {
+    "type": "cron",
+    "cron": "0 21 * * mon-fri",
+    "timezone": "Asia/Shanghai"
+  },
+  "task_type": "agent",
+  "request": {
+    "input": [
+      {
+        "content": [
+          {
+            "text": "每日回顾：1)检查日报发布情况 2)分析养号记录和账号表现 3)规划次日选题（教程类内容）4)钉钉通知结果",
+            "type": "text"
+          }
+        ],
+        "role": "user",
+        "type": "message"
+      }
+    ],
+    "session_id": "PR9Gwr0=",
+    "user_id": "靑枫#SA=="
+  },
+  "dispatch": {
+    "type": "channel",
+    "channel": "dingtalk",
+    "target": {
+      "user_id": "靑枫#SA==",
+      "session_id": "PR9Gwr0="
+    },
+    "mode": "final"
+  }
+}

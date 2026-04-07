@@ -1,0 +1,42 @@
+{
+  "id": "225072a1-11da-4acd-ae0d-da18e249668b",
+  "name": "小红书养号午间",
+  "enabled": true,
+  "schedule": {
+    "type": "cron",
+    "cron": "0 12 * * *",
+    "timezone": "Asia/Shanghai"
+  },
+  "task_type": "agent",
+  "request": {
+    "input": [
+      {
+        "content": [
+          {
+            "text": "执行小红书养号任务：\n1. 使用 chrome-bridge MCP 打开小红书\n2. 检查登录状态，未登录则通知用户扫码\n3. 从关键词池随机选择 2-3 个关键词搜索（红利指数、股息率、红利ETF、稳健投资、定投红利等）\n4. 浏览 3-5 个帖子，每帖停留 30-60 秒，滚动阅读 2-4 次\n5. 记录帖子标题、作者、互动数、用户需求\n6. 保存日志到 hongshutiao/logs/YYYY-MM-DD_browse_log.jsonl\n7. 发送钉钉通知（必须包含关键词\"靑枫_QwQ\"）\n\n注意：仅搜索浏览，不关注、不点赞、不收藏。操作间隔 5-15 秒随机。详细文档见 skills/xhs-browse/SKILL.md",
+            "type": "text"
+          }
+        ],
+        "role": "user",
+        "type": "message"
+      }
+    ],
+    "session_id": "PR9Gwr0=",
+    "user_id": "靑枫#SA=="
+  },
+  "dispatch": {
+    "type": "channel",
+    "channel": "dingtalk",
+    "target": {
+      "user_id": "靑枫#SA==",
+      "session_id": "PR9Gwr0="
+    },
+    "mode": "final",
+    "meta": {}
+  },
+  "runtime": {
+    "max_concurrency": 1,
+    "timeout_seconds": 600,
+    "misfire_grace_seconds": 300
+  }
+}

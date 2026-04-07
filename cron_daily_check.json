@@ -1,0 +1,12 @@
+{
+  "type": "agent",
+  "name": "红利日报更新检测",
+  "cron": "0 8 * * 1-5",
+  "channel": "dingtalk",
+  "target_user": "靑枫#SA==",
+  "target_session": "PR9Gwr0=",
+  "text": "请检查 hongshutiao 项目今日日报是否已更新。如果已更新，发送钉钉通知提醒我可以发布小红书日报。检查方法：访问 https://zironglv.github.io/hongshutiao/data/daily/{今日日期}/data.json 是否返回 200。",
+  "timezone": "Asia/Shanghai",
+  "enabled": true,
+  "mode": "final"
+}

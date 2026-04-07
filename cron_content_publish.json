@@ -1,0 +1,35 @@
+{
+  "name": "内容创作发布",
+  "enabled": true,
+  "schedule": {
+    "type": "cron",
+    "cron": "0 14 * * *",
+    "timezone": "Asia/Shanghai"
+  },
+  "task_type": "agent",
+  "request": {
+    "input": [
+      {
+        "content": [
+          {
+            "text": "内容创作发布：1)读取昨日规划的选题 2)获取最新红利数据 3)生成教程内容（标题、正文、封面图）4)发布到小红书 5)钉钉通知结果",
+            "type": "text"
+          }
+        ],
+        "role": "user",
+        "type": "message"
+      }
+    ],
+    "session_id": "PR9Gwr0=",
+    "user_id": "靑枫#SA=="
+  },
+  "dispatch": {
+    "type": "channel",
+    "channel": "dingtalk",
+    "target": {
+      "user_id": "靑枫#SA==",
+      "session_id": "PR9Gwr0="
+    },
+    "mode": "final"
+  }
+}
